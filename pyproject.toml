@@ -1,0 +1,17 @@
+[project]
+name = "s_k"
+version = "0.0.1"
+description = "A recipe database for healthy students."
+dependencies = ["flask"]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+# Some extra configuration, which is not required but makes running tests with coverage less verbose
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["s_k"]
