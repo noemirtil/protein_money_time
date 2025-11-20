@@ -4,6 +4,10 @@ JOIN "junction_currency_country" ON "junction_currency_country"."country_id" = "
 JOIN "currencies" ON "junction_currency_country"."currency_id" = "currencies"."id"
 WHERE "currency_code" = 'EUR';
 
+-- Select products with brand names
+SELECT "products"."off_code", "products"."name", "brands"."name", "brands"."website" FROM "products"
+JOIN "brands" ON "brands"."id" = "products"."brand_id";
+
 
 -- INSERT INTO "recipes" ("name", "duration", "description", "author_id")
 -- VALUES ('Lentils and eggs', '15', 'Boil the lentils, add the eggs', '1'),

@@ -1,15 +1,15 @@
 DELETE FROM "users" CASCADE;
+DELETE FROM "products" CASCADE;
 DELETE FROM "brands" CASCADE;
 DELETE FROM "junction_currency_country" CASCADE;
-DELETE FROM "countries" CASCADE;
 DELETE FROM "currencies" CASCADE;
+DELETE FROM "countries" CASCADE;
 
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),
 ('Rossana', 'rossana@gmail.com', 'password'),
 ('Maria', 'maria@gmail.com', 'password'),
 ('Juan', 'juan@gmail.com', 'password');
-
 
 
 -- Calling a .csv file from a python script to pgsql is quite complex and
@@ -27,8 +27,6 @@ INSERT INTO "users" ("username", "email", "password") VALUES
 -- specified, data is transmitted via the connection between the client and
 -- the server.
 
-\COPY "countries"("country") FROM 'countries.csv' delimiter ';' csv header;
-\COPY "currencies"("currency_name", "currency_code") FROM 'currencies.csv' delimiter ';' csv header;
 \COPY "brands"("name", "website") FROM 'brands.csv' delimiter ';' csv header;
 -- Seeding the "products" table:
 -- Create a temporary table to hold the CSV data
@@ -65,6 +63,9 @@ BEGIN
     END LOOP;
 END $$;
 DROP TABLE "tmp_products";
+
+\COPY "currencies"("currency_name", "currency_code") FROM 'currencies.csv' delimiter ';' csv header;
+\COPY "countries"("country") FROM 'countries.csv' delimiter ';' csv header;
 
 -- Seeding the "junction_curren_countr" junction table:
 -- Create a temporary table to hold the CSV data
