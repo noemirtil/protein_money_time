@@ -3,7 +3,7 @@
 -- DROP TABLE IF EXISTS "products" CASCADE;
 -- DROP TABLE IF EXISTS "currencies" CASCADE;
 -- DROP TABLE IF EXISTS "countries" CASCADE;
--- DROP TABLE IF EXISTS "junction_curren_countr" CASCADE;
+-- DROP TABLE IF EXISTS "junction_currency_country" CASCADE;
 -- DROP TABLE IF EXISTS "stores" CASCADE;
 -- DROP TABLE IF EXISTS "prices" CASCADE;
 
@@ -14,10 +14,10 @@ CREATE TABLE "users" (
     "username" VARCHAR(32) NOT NULL UNIQUE,
     "email" VARCHAR(320) NOT NULL,
     "password" VARCHAR(64) NOT NULL,
-    -- "avatar_url" VARCHAR(2048) UNIQUE DEFAULT 'https://pix.org/no_face.png',
-    -- "avatar_image" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
-    "contributions" INT,
+    "contributions" INT DEFAULT 0,
     "deleted" BOOLEAN NOT NULL DEFAULT 'false'
+    -- "avatar_url" VARCHAR(2048) UNIQUE DEFAULT 'https://pix.org/no_face.png',
+    -- "avatar_image" bytea -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
 );
 
 -- Represent the brands which make the products
@@ -51,7 +51,7 @@ CREATE TABLE "products" (
     "id" SERIAL PRIMARY KEY,
     "off_code" BIGINT UNIQUE, -- Open Food Facts database code
     "url" VARCHAR(2048) NOT NULL UNIQUE,
-    "name" VARCHAR(320) NOT NULL UNIQUE,
+    "name" VARCHAR(320) NOT NULL,
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
     "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
     "energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
@@ -59,8 +59,8 @@ CREATE TABLE "products" (
     "sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
     "carbs" REAL NOT NULL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
     "sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
-    "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
+    "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
     "c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
     "nutr_score_fr" SMALLINT CHECK ("nutr_score_fr" BETWEEN -20 AND 50), -- https://en.wikipedia.org/wiki/Nutri-Score
@@ -70,8 +70,8 @@ CREATE TABLE "products" (
 CREATE TABLE "currencies" (
     -- https://en.wikipedia.org/wiki/ISO_4217#List_of_ISO_4217_currency_codes
     "id" SMALLSERIAL PRIMARY KEY,
-    "currency_code" VARCHAR(3) NOT NULL UNIQUE,
-    "currency_name" VARCHAR(42) NOT NULL UNIQUE
+    "currency_name" VARCHAR(42) NOT NULL UNIQUE,
+    "currency_code" VARCHAR(3) NOT NULL UNIQUE
 );
 
 CREATE TABLE "countries" (
@@ -80,10 +80,10 @@ CREATE TABLE "countries" (
 );
 
 -- junction table for a many-to-many relationship
-CREATE TABLE "junction_curren_countr" (
+CREATE TABLE "junction_currency_country" (
     "id" SMALLSERIAL PRIMARY KEY,
-    "country_id" SMALLINT NOT NULL REFERENCES "countries",
-    "currency_id" SMALLINT NOT NULL REFERENCES "currencies"
+    "country_id" SMALLINT REFERENCES "countries",
+    "currency_id" SMALLINT REFERENCES "currencies"
 );
 
 -- Represent the stores where the prices were seen
