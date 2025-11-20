@@ -1,6 +1,7 @@
 from flask import Flask
 from config import Config
 from app.extensions import csrf, login_manager
+from .db.connection import get_db
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -14,6 +15,16 @@ def create_app(config_class=Config):
     #flask init-db
     from app.db import connection
     connection.init_app(app)
+    
+    from app.models.user import User    
+    @login_manager.user_loader
+    def load_user(user_id):
+        cur = get_db().cursor()
+        user_dict = cur.execute("SELECT * FROM users WHERE id=%s",
+                    (user_id,)).fetchone()
+        if user_dict:
+            return User(user_dict)
+        return None
     
     #Register blueprints
     from app.routes.auth import auth_bp
