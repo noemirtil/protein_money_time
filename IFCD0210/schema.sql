@@ -2,6 +2,8 @@
 -- DROP TABLE IF EXISTS "brands" CASCADE;
 -- DROP TABLE IF EXISTS "products" CASCADE;
 -- DROP TABLE IF EXISTS "currencies" CASCADE;
+-- DROP TABLE IF EXISTS "countries" CASCADE;
+-- DROP TABLE IF EXISTS "junction_curren_countr" CASCADE;
 -- DROP TABLE IF EXISTS "stores" CASCADE;
 -- DROP TABLE IF EXISTS "prices" CASCADE;
 
@@ -68,8 +70,20 @@ CREATE TABLE "products" (
 CREATE TABLE "currencies" (
     -- https://en.wikipedia.org/wiki/ISO_4217#List_of_ISO_4217_currency_codes
     "id" SMALLSERIAL PRIMARY KEY,
-    "country" VARCHAR(58) NOT NULL UNIQUE,
-    "currency" VARCHAR(3) NOT NULL -- currency code
+    "currency_code" VARCHAR(3) NOT NULL UNIQUE,
+    "currency_name" VARCHAR(42) NOT NULL UNIQUE
+);
+
+CREATE TABLE "countries" (
+    "id" SMALLSERIAL PRIMARY KEY,
+    "country" VARCHAR(60) NOT NULL UNIQUE
+);
+
+-- junction table for a many-to-many relationship
+CREATE TABLE "junction_curren_countr" (
+    "id" SMALLSERIAL PRIMARY KEY,
+    "country_id" SMALLINT NOT NULL REFERENCES "countries",
+    "currency_id" SMALLINT NOT NULL REFERENCES "currencies"
 );
 
 -- Represent the stores where the prices were seen
@@ -80,7 +94,7 @@ CREATE TABLE "stores" (
     -- "long_lat" geography(point), -- longitude first then latitude, example: 'POINT(-118.4079 33.9434)'
     -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
     "website" VARCHAR(2048) UNIQUE, -- can be null for physical stores
-    "currency_id" INT REFERENCES "currencies", -- For the country, can be null for online stores
+    "country_id" INT REFERENCES "countries", -- can be null for online stores
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
