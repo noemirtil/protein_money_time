@@ -10,6 +10,11 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     login_manager.init_app(app)
     
+    # Inicia base de datos con comands CLI
+    #flask init-db
+    from app.db import connection
+    connection.init_app(app)
+    
     #Register blueprints
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp)
