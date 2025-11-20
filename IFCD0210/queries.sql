@@ -5,10 +5,6 @@ JOIN "currencies" ON "junction_currency_country"."currency_id" = "currencies"."i
 WHERE "currency_code" = 'EUR';
 
 
-
--- Test data seeding
--- INSERT INTO "users" ("username", "email", "password") VALUES ('Noemi', "noemi@gmail.com", 'password');
-
 -- INSERT INTO "recipes" ("name", "duration", "description", "author_id")
 -- VALUES ('Lentils and eggs', '15', 'Boil the lentils, add the eggs', '1'),
 -- ('Spaghetti with mozzarella', '20', 'Boil the spaghettis, add the cheese', '1');
@@ -20,16 +16,9 @@ WHERE "currency_code" = 'EUR';
 -- INSERT INTO "grams" ("recipe_id", "ingredient_id", "grams_per_person")
 -- VALUES ('1', '1', '100'), ('1', '2', '250'), ('2', '3', '100'), ('2', '4', '50');
 
--- INSERT INTO "providers" ("name", "website") VALUES ('Carrefour', 'https://www.carrefour.es/');
-
 -- INSERT INTO "prices" ("ingredient_id", "price", "currency", "author_id")
 -- VALUES ('1', '35', 'Euro', '1'), ('2', '43', 'Euro', '1'),
 -- ('3', '16', 'Euro', '1'), ('4', '112', 'Euro', '1');
-
--- -- Test data updating
--- UPDATE "grams" SET "grams_per_person" = '250' WHERE "recipe_id" = '2' AND "ingredient_id" = '3';
--- UPDATE "grams" SET "grams_per_person" = '100' WHERE "recipe_id" = '2' AND "ingredient_id" = '4';
--- UPDATE "prices" SET "provider_id" = '1' WHERE "id" IN ('1', '2', '3', '4');
 
 -- -- To find the price of the lentils:
 -- SELECT "ingredients"."name" AS "ingredient",
@@ -49,5 +38,3 @@ WHERE "currency_code" = 'EUR';
 -- GROUP BY "recipe"
 -- ORDER BY "cost", "protein" DESC, "fat", "duration";
 
--- -- Test user deleting
--- DELETE FROM "users" WHERE "username" = 'Noemi';

@@ -1,4 +1,5 @@
 DELETE FROM "users" CASCADE;
+DELETE FROM "brands" CASCADE;
 DELETE FROM "junction_currency_country" CASCADE;
 DELETE FROM "countries" CASCADE;
 DELETE FROM "currencies" CASCADE;
@@ -29,8 +30,43 @@ INSERT INTO "users" ("username", "email", "password") VALUES
 \COPY "countries"("country") FROM 'countries.csv' delimiter ';' csv header;
 \COPY "currencies"("currency_name", "currency_code") FROM 'currencies.csv' delimiter ';' csv header;
 \COPY "brands"("name", "website") FROM 'brands.csv' delimiter ';' csv header;
+-- Seeding the "products" table:
+-- Create a temporary table to hold the CSV data
+CREATE TEMPORARY TABLE "tmp_products" (
+    "off_code" BIGINT,
+    "url" VARCHAR(2048),
+    "name" VARCHAR(320),
+    "ingredients_text" TEXT,
+    "energy" SMALLINT,
+    "fat" REAL,
+    "sat_fat" REAL,
+    "carbs" REAL,
+    "sugars" REAL,
+    "fiber" REAL,
+    "protein" REAL,
+    "sodium" REAL,
+    "c_vitamin" REAL,
+    "nutr_score_fr" SMALLINT,
+    "brand_name" VARCHAR(320)
+);
+-- Copy the CSV data into the temporary table
+\COPY "tmp_products"("off_code", "url", "name", "ingredients_text", "energy", "fat", "sat_fat", "carbs", "sugars", "fiber", "protein", "sodium", "c_vitamin", "nutr_score_fr", "brand_name") FROM 'products.csv' delimiter ';' csv header;
+DO $$
+DECLARE
+    row tmp_products%ROWTYPE;
+BEGIN
+    FOR row IN SELECT * FROM "tmp_products"
+    LOOP
+        INSERT INTO "products"("off_code", "url", "name", "brand_id", "ingredients_text", "energy", "fat", "sat_fat", "carbs", "sugars", "fiber", "protein", "sodium", "c_vitamin", "nutr_score_fr")
+        VALUES (row.off_code, row.url, row.name,
+            (SELECT "id" FROM "brands" WHERE "name" = row.brand_name),
+            row.ingredients_text, row.energy, row.fat, row.sat_fat, row.carbs, row.sugars, row.fiber, row.protein, row.sodium, row.c_vitamin, row.nutr_score_fr
+            );
+    END LOOP;
+END $$;
+DROP TABLE "tmp_products";
 
--- seed the "junction_curren_countr" junction table:
+-- Seeding the "junction_curren_countr" junction table:
 -- Create a temporary table to hold the CSV data
 CREATE TEMPORARY TABLE "tmp_junction" (
     "country" TEXT,

@@ -55,7 +55,7 @@ CREATE TABLE "products" (
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
     "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
     "energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
-    "fat" SMALLINT NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
+    "fat" REAL NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
     "sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
     "carbs" REAL NOT NULL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
     "sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
