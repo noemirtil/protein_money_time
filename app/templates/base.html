@@ -5,7 +5,6 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>
             {% block title %}
-                ¡Bienvenid@!
             {% endblock title %}
         </title>
         <meta name="description" content="">
@@ -14,11 +13,22 @@
     </head>
     <body>
         <nav>
-            <a href=''>Inicio</a>
-            <a href="{{ url_for('auth.register') }}">Registrarse</a>
-            <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.index') }}">Inicio</a>
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                <form method="POST" action="{{ url_for('auth.logout') }}" 
+                    style="display:inline;"
+                    onsubmit="return confirm('¿Quieres cerrar sesión?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('main.index') }}">Inicio</a>
+                <a href="{{ url_for('auth.register') }}">Registrarse</a>
+                <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+            {% endif %}
         </nav>
-        
+
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}

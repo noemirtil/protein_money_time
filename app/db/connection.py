@@ -9,7 +9,7 @@ def get_db():
         try:
             g.db = psycopg2.connect(
                 Config.DATABASE_URL,
-                cursor_factory=RealDictCursor  # ✅ Add this back!
+                cursor_factory=RealDictCursor
             )
         except psycopg2.Error as e:
             print(f"Falló la conexión a la base de datos: {e}")
@@ -49,7 +49,6 @@ def init_db():
                 # Rebuild command without comment-only lines
                 clean_command = '\n'.join(lines).strip()
                 
-                # Skip if nothing left
                 if not clean_command:
                     continue
                 

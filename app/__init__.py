@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from config import Config
 from app.extensions import csrf, login_manager
 from .db.connection import get_db
@@ -20,19 +20,16 @@ def create_app(config_class=Config):
     @login_manager.user_loader
     def load_user(user_id):
         cur = get_db().cursor()
-        user_dict = cur.execute("SELECT * FROM users WHERE id=%s",
-                    (user_id,)).fetchone()
+        cur.execute("SELECT * FROM users WHERE id=%s", (user_id,))
+        user_dict = cur.fetchone()
         if user_dict:
             return User(user_dict)
         return None
     
     #Register blueprints
     from app.routes.auth import auth_bp
+    from app.routes.main import main_bp
     app.register_blueprint(auth_bp)
-    
-    # Test route
-    @app.route('/')
-    def index():
-        return '<h1>Protein Money Time App is Running! 🍽️</h1>'
+    app.register_blueprint(main_bp)
     
     return app
