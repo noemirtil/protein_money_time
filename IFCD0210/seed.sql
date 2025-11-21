@@ -1,9 +1,10 @@
-DELETE FROM "users" CASCADE;
-DELETE FROM "products" CASCADE;
-DELETE FROM "brands" CASCADE;
-DELETE FROM "junction_currency_country" CASCADE;
-DELETE FROM "currencies" CASCADE;
-DELETE FROM "countries" CASCADE;
+-- DELETE FROM "users" CASCADE;
+-- DELETE FROM "products" CASCADE;
+-- DELETE FROM "brands" CASCADE;
+-- DELETE FROM "junction_currency_country" CASCADE;
+-- DELETE FROM "currencies" CASCADE;
+-- DELETE FROM "countries" CASCADE;
+-- DELETE FROM "stores" CASCADE;
 
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),
@@ -91,4 +92,13 @@ BEGIN
 END $$;
 DROP TABLE "tmp_junction";
 
-
+INSERT INTO "stores" ("name", "address", "website", "country_id") VALUES
+('Consum', 'Carrer de València, 478, L''Eixample, 08013 Barcelona', 'https://www.consum.es/', (
+    SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
+)),
+('Carrefour', 'Westfield Las Glorias, Calle Les Glories, esquina Calle Llacunna, 155, Av. Diagonal, 208, Centro Comercial, 08018 Barcelona', 'https://www.carrefour.es/tiendas-carrefour/hipermercados/carrefour/las_glorias.aspx', (
+    SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
+)),
+('Mercadona', 'Carrer del Perú, 151, Sant Martí, 08018 Barcelona', 'http://mercadona.es/', (
+    SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
+));

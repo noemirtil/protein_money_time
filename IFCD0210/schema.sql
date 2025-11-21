@@ -12,8 +12,8 @@
 CREATE TABLE "users" (
     "id" SERIAL PRIMARY KEY,
     "username" VARCHAR(32) NOT NULL UNIQUE,
-    "email" VARCHAR(320) NOT NULL,
-    "password" VARCHAR(64) NOT NULL,
+    "email" VARCHAR(320) NOT NULL UNIQUE,
+    "password" VARCHAR(255) NOT NULL,
     "contributions" INT DEFAULT 0,
     "deleted" BOOLEAN NOT NULL DEFAULT 'false'
     -- "avatar_url" VARCHAR(2048) UNIQUE DEFAULT 'https://pix.org/no_face.png',
@@ -89,8 +89,8 @@ CREATE TABLE "junction_currency_country" (
 -- Represent the stores where the prices were seen
 CREATE TABLE "stores" (
     "id" SERIAL PRIMARY KEY,
-    "name" VARCHAR(64) NOT NULL UNIQUE,
-    "address" VARCHAR(100), -- can be null for online stores
+    "name" VARCHAR(64) NOT NULL,
+    "address" VARCHAR(2048) UNIQUE, -- can be null for online stores
     -- "long_lat" geography(point), -- longitude first then latitude, example: 'POINT(-118.4079 33.9434)'
     -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
     "website" VARCHAR(2048) UNIQUE, -- can be null for physical stores
