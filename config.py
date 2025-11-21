@@ -15,7 +15,8 @@ class Config:
     DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD', '')
     DATABASE_PORT = os.getenv('DATABASE_PORT', '5432')
     
-    DATABASE_URL = os.getenv('DATABASE_URL', '')
+    DATABASE_URL = os.getenv('DATABASE_URL', 
+    f'postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}?sslmode=require')
     
     #Enable CSRF for forms
     WTF_CSRF_ENABLED = True

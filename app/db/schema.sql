@@ -1,8 +1,6 @@
 -- \l   -- List databases
 -- \dt  -- List tables
 -- \du  -- List users
-
-DROP TABLE IF EXISTS "test_table";
 -- DROP TABLE IF EXISTS "products";
 -- DROP TABLE IF EXISTS "brands";
 -- DROP TABLE IF EXISTS "stores";
@@ -15,8 +13,8 @@ DROP TABLE IF EXISTS "users";
 CREATE TABLE "users" (
     "id" SERIAL,
     "username" VARCHAR(32) NOT NULL UNIQUE,
-    "email" VARCHAR(320) NOT NULL,
-    "password" VARCHAR(64) NOT NULL,
+    "email" VARCHAR(320) NOT NULL UNIQUE,
+    "password" VARCHAR(255) NOT NULL,
     -- "avatar" BLOB,
     "contributions" INTEGER,
     PRIMARY KEY("id")
