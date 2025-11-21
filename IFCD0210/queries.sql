@@ -8,29 +8,26 @@ WHERE "currency_code" = 'EUR';
 SELECT "products"."off_code", "products"."name", "brands"."name", "brands"."website" FROM "products"
 JOIN "brands" ON "brands"."id" = "products"."brand_id";
 
+-- To find the price of the cornbread:
+SELECT "products"."name" AS "Product name",
+("prices"."price" * 0.01) AS "Price", "stores"."name" AS "Store name"
+FROM "products"
+JOIN "prices" ON "prices"."product_id" = "products"."id"
+JOIN "stores" ON "prices"."store_id" = "stores"."id"
+WHERE "products"."name" ILIKE '%cornbread%'; -- case-insensitive version of LIKE
 
--- INSERT INTO "recipes" ("name", "duration", "description", "author_id")
--- VALUES ('Lentils and eggs', '15', 'Boil the lentils, add the eggs', '1'),
--- ('Spaghetti with mozzarella', '20', 'Boil the spaghettis, add the cheese', '1');
+-- To look for the 10 most cost-health effective products
+SELECT "products"."name" AS "Product name",
+SUM("prices"."weight" * "prices"."price") AS "Cost",
+"protein" AS "Protein",
+"fat" AS "Fat"
+FROM "products"
+JOIN "prices" ON "prices"."product_id" = "products"."id"
+ORDER BY "Cost", "Protein" DESC, "Fat"
+LIMIT 10;
 
--- INSERT INTO "ingredients" ("name", "protein", "carbs", "fat")
--- VALUES ('Lentils', '9', '31', '1'), ('Eggs', '13', '1', '9'),
--- ('Spaghettis', '6', '30', '1'), ('Mozzarella', '18', '2', '18');
 
--- INSERT INTO "grams" ("recipe_id", "ingredient_id", "grams_per_person")
--- VALUES ('1', '1', '100'), ('1', '2', '250'), ('2', '3', '100'), ('2', '4', '50');
 
--- INSERT INTO "prices" ("ingredient_id", "price", "currency", "author_id")
--- VALUES ('1', '35', 'Euro', '1'), ('2', '43', 'Euro', '1'),
--- ('3', '16', 'Euro', '1'), ('4', '112', 'Euro', '1');
-
--- -- To find the price of the lentils:
--- SELECT "ingredients"."name" AS "ingredient",
--- "prices"."price", "providers"."name" AS "provider"
--- FROM "ingredients"
--- JOIN "prices" ON "prices"."ingredient_id" = "ingredients"."id"
--- JOIN "providers" ON "prices"."provider_id" = "providers"."id"
--- WHERE "ingredient" LIKE '%lentil%';
 
 -- -- To look for a cost-effective recipe
 -- SELECT "recipe",
@@ -42,3 +39,13 @@ JOIN "brands" ON "brands"."id" = "products"."brand_id";
 -- GROUP BY "recipe"
 -- ORDER BY "cost", "protein" DESC, "fat", "duration";
 
+-- INSERT INTO "recipes" ("name", "duration", "description", "author_id")
+-- VALUES ('Lentils and eggs', '15', 'Boil the lentils, add the eggs', '1'),
+-- ('Spaghetti with mozzarella', '20', 'Boil the spaghettis, add the cheese', '1');
+
+-- INSERT INTO "ingredients" ("name", "protein", "carbs", "fat")
+-- VALUES ('Lentils', '9', '31', '1'), ('Eggs', '13', '1', '9'),
+-- ('Spaghettis', '6', '30', '1'), ('Mozzarella', '18', '2', '18');
+
+-- INSERT INTO "grams" ("recipe_id", "ingredient_id", "grams_per_person")
+-- VALUES ('1', '1', '100'), ('1', '2', '250'), ('2', '3', '100'), ('2', '4', '50');

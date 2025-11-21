@@ -1,10 +1,11 @@
--- DELETE FROM "users" CASCADE;
--- DELETE FROM "products" CASCADE;
--- DELETE FROM "brands" CASCADE;
--- DELETE FROM "junction_currency_country" CASCADE;
--- DELETE FROM "currencies" CASCADE;
--- DELETE FROM "countries" CASCADE;
--- DELETE FROM "stores" CASCADE;
+DELETE FROM "users" CASCADE;
+DELETE FROM "products" CASCADE;
+DELETE FROM "brands" CASCADE;
+DELETE FROM "junction_currency_country" CASCADE;
+DELETE FROM "currencies" CASCADE;
+DELETE FROM "stores" CASCADE;
+DELETE FROM "countries" CASCADE;
+DELETE FROM "prices" CASCADE;
 
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),
@@ -68,7 +69,7 @@ DROP TABLE "tmp_products";
 \COPY "currencies"("currency_name", "currency_code") FROM 'currencies.csv' delimiter ';' csv header;
 \COPY "countries"("country") FROM 'countries.csv' delimiter ';' csv header;
 
--- Seeding the "junction_curren_countr" junction table:
+-- Seeding the "junction_currency_country" junction table:
 -- Create a temporary table to hold the CSV data
 CREATE TEMPORARY TABLE "tmp_junction" (
     "country" TEXT,
@@ -102,3 +103,23 @@ INSERT INTO "stores" ("name", "address", "website", "country_id") VALUES
 ('Mercadona', 'Carrer del Perú, 151, Sant Martí, 08018 Barcelona', 'http://mercadona.es/', (
     SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
 ));
+
+-- seeding prices with random values
+DO $$
+DECLARE
+    row products%ROWTYPE;
+BEGIN
+    FOR row IN SELECT * FROM "products"
+    LOOP
+        INSERT INTO "prices" ("product_id","store_id","price","weight","quantity","currency_id","author_id","comment")
+        VALUES (
+            (SELECT "id" FROM "products" WHERE "off_code" = row.off_code),
+            (SELECT "id" FROM "stores" WHERE "name" = 'Carrefour'),
+            (trunc(random()*999)),
+            (trunc(random()*500)),
+            1,
+            (SELECT "id" FROM "currencies" WHERE "currency_code" = 'USD'),
+            (SELECT "id" FROM "users" WHERE "username" = 'Noemi'),
+            'Random testing value');
+    END LOOP;
+END $$;

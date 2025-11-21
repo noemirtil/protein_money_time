@@ -93,8 +93,8 @@ CREATE TABLE "stores" (
     "address" VARCHAR(2048) UNIQUE, -- can be null for online stores
     -- "long_lat" geography(point), -- longitude first then latitude, example: 'POINT(-118.4079 33.9434)'
     -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
-    "website" VARCHAR(2048) UNIQUE, -- can be null for physical stores
     "country_id" INT REFERENCES "countries", -- can be null for online stores
+    "website" VARCHAR(2048) UNIQUE, -- can be null for physical stores
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -105,11 +105,11 @@ CREATE TABLE "prices" (
     "product_id" INT NOT NULL REFERENCES "products",
     "store_id" INT NOT NULL REFERENCES "stores",
     "date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "price" SMALLINT NOT NULL CHECK ("price" >= 0), -- in cents per 100g
+    "price" SMALLINT NOT NULL CHECK ("price" >= 0), -- in cents per packaging
     "weight" INT CHECK ("weight" >= 0), -- packaging size in grams
     "quantity" INT CHECK ("quantity" >= 0), -- packaging size in units
     -- "product_pic_file" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
-    "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
+    -- "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
     "currency_id" SMALLINT NOT NULL REFERENCES "currencies",
     "author_id" INT NOT NULL REFERENCES "users", -- user who uploaded the data
     "comment" VARCHAR(2048),
