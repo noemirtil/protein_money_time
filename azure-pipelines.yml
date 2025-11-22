@@ -70,6 +70,8 @@ stages:
   - deployment: DeploymentJob
     pool:
       vmImage: $(vmImageName)
+      parallel: true
+      maxParallelJobs: 1
     environment: $(environmentName)
     strategy:
       runOnce:
