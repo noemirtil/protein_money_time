@@ -4,7 +4,7 @@
 *.jsonl
 *.json
 *.xls
-
+database.ini
 
 
 # Flask #
