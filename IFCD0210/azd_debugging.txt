@@ -1,2 +1,7 @@
 
-ERROR: current working directory is not a project or service directory. Specify a service name to deploy a service, or specify --all to deploy all services
+Deploying services (azd deploy)
+
+Deploying service web
+  (x) Failed: Deploying service web
+
+ERROR: failed packaging service 'web': package source '/Users/noemi/Dropbox/DevWork/repos/github/noemirtil/protein_money_time/IFCD0210/app_test.py' is empty or does not exist
