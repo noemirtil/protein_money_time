@@ -14,7 +14,7 @@ variables:
   webAppName: 'p-m-t-ks5rqp3cc57aa'
 
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  vmImageName: 'windows-latest'
 
   # Environment name
   environmentName: 'p-m-t-ks5rqp3cc57aa'
@@ -31,6 +31,8 @@ stages:
   - job: BuildJob
     pool:
       vmImage: $(vmImageName)
+      parallel: true
+      maxParallelJobs: 1
     steps:
     - task: UsePythonVersion@0
       inputs:
