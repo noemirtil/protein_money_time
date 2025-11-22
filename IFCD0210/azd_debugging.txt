@@ -1,0 +1,2 @@
+
+ERROR: current working directory is not a project or service directory. Specify a service name to deploy a service, or specify --all to deploy all services
