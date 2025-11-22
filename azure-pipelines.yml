@@ -7,6 +7,6 @@ steps:
   displayName: 'Azure App Service deployment'
   inputs:
     ConnectionType: 'AzureRM'
-    azureSubscription: 'efda3311-78fa-4f42-b3f3-d17ebac61042'
+    azureSubscription: '0aef1d9c-76d5-49fa-ba41-aa793d998aca'
     appName: 'p-m-t-ks5rqp3cc57aa'
     package: '$(System.DefaultWorkingDirectory)/**/*.zip'
