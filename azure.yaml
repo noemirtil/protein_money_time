@@ -1,38 +1,91 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
-# azure.yaml is an azd configuration file and isn't used by the sample application.
+# Python to Linux Web App on Azure
+# Build your Python project and deploy it to Azure as a Linux Web App.
+# Change python version to one thats appropriate for your application.
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
-# name: python-app-service-postgresql-redis-infra
-name: pmt-flask-test-app
-# metadata:
-  # template: python-app-service-postgresql-redis-infra@0.0.1-beta
-services:
-  web:
-    # project: .
-    project: ./IFCD0210/app_test.py
-    language: py
-    host: appservice
-hooks:
-  postprovision:
-    posix:
-      shell: sh
-      run: printf '\nApp Service app has the following connection settings:\n' && printf "$CONNECTION_SETTINGS" | jq -r '.[]' | sed 's/\(.*\)/\t- \1/' && printf "\nSee the settings in the portal:\033[1;36m $WEB_APP_CONFIG\n"
-      interactive: true
-      continueOnError: true
-    windows:
-      shell: pwsh
-      run: Write-Host "`n`nApp Service app has the following connection settings:`n" $CONNECTION_SETTINGS | ConvertFrom-Json | ForEach-Object { Write-Host "\t- $_" }
-      interactive: true
-      continueOnError: true
-  postdeploy:
-    posix:
-      shell: sh
-      run: printf "Open SSH session to App Service container at:\033[1;36m $WEB_APP_SSH\033[0m\nStream App Service logs at:\033[1;36m $WEB_APP_LOG_STREAM\n"
-      # run: printf "My Flask app is now deployed at: $WEB_APP_URL\n"
-      interactive: true
-      continueOnError: true
-    windows:
-      shell: pwsh
-      run: Write-Host "`n`nOpen SSH session to App Service container at:`n" $WEB_APP_SSH; Write-Host "Stream App Service logs at:`n" $WEB_APP_LOG_STREAM
-      interactive: true
-      continueOnError: true
+trigger:
+- main
 
+variables:
+  # Azure Resource Manager connection created during pipeline creation
+  azureServiceConnectionId: '0aef1d9c-76d5-49fa-ba41-aa793d998aca'
+
+  # Web app name
+  webAppName: 'p-m-t-ks5rqp3cc57aa'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+  # Environment name
+  environmentName: 'p-m-t-ks5rqp3cc57aa'
+
+  # Project root folder. Point to the folder containing manage.py file.
+  projectRoot: $(System.DefaultWorkingDirectory)
+
+  pythonVersion: '3.11'
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: $(vmImageName)
+      parallel: true
+      maxParallelJobs: 1
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+      displayName: 'Use Python $(pythonVersion)'
+
+    - script: |
+        python -m venv antenv
+        source antenv/bin/activate
+        python -m pip install --upgrade pip
+        pip install setup
+        pip install -r requirements.txt
+        python IFCD0210/app_test.py
+      workingDirectory: $(projectRoot)
+      displayName: "Install requirements"
+
+    - task: ArchiveFiles@2
+      displayName: 'Archive files'
+      inputs:
+        rootFolderOrFile: '$(projectRoot)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+
+    - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      displayName: 'Upload package'
+      artifact: drop
+
+- stage: Deploy
+  displayName: 'Deploy Web App'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeploymentJob
+    pool:
+      vmImage: $(vmImageName)
+      parallel: true
+      maxParallelJobs: 1
+    environment: $(environmentName)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '$(pythonVersion)'
+            displayName: 'Use Python version'
+
+          - task: AzureWebApp@1
+            displayName: 'Deploy Azure Web App : p-m-t-ks5rqp3cc57aa'
+            inputs:
+              azureSubscription: $(azureServiceConnectionId)
+              appName: $(webAppName)
+              package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
