@@ -1,7 +1,7 @@
 [project]
-name = "s_k"
+name = "app_test"
 version = "0.0.1"
-description = "A recipe database for healthy students."
+description = "A food database for healthy students."
 dependencies = ["flask"]
 
 [build-system]
@@ -14,4 +14,4 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["s_k"]
+source = ["app_test"]
