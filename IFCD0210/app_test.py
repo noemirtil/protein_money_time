@@ -18,7 +18,8 @@ def index():
         ).fetchall()
 
     return f"""
-    <H1>SOME RESULTS OF A QUERY:</H1>
+    <H1>THIS IS NOT A WEIGHT-LOSS APP</H1>
+    <H2>Some results of a test query:</H2>
     <p>Product: {results[0][1]}, Brand: {results[0][2]}</p>
     <p>Product: {results[1][1]}, Brand: {results[1][2]}</p>
     <p>Product: {results[2][1]}, Brand: {results[2][2]}</p>
