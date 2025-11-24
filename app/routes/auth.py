@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for, redirect, flash
+from flask import Blueprint, render_template, url_for, redirect, flash, request, jsonify
 from app.db.connection import get_db
 from config import Config
 from psycopg2.extras import RealDictCursor
@@ -87,4 +87,29 @@ def logout():
     logout_user()
     flash('Sesión cerrada con éxito.', 'success')
     return redirect(url_for('main.index'))
+
+@auth_bp.route('/check-username', methods=['GET', 'POST'])
+def check_username():
     
+    username = request.args.get('username', '').strip().lower()
+    
+    db = get_db()
+    cur = db.cursor()
+    
+    cur.execute('SELECT id FROM users WHERE username=%s', (username,))
+    user = cur.fetchone()
+    
+    return jsonify({'available': user is None})
+
+@auth_bp.route('/check-email', methods=['GET', 'POST'])
+def check_email():
+    
+    email = request.args.get('email', '').strip().lower()
+    
+    db = get_db()
+    cur = db.cursor()
+    
+    cur.execute('SELECT id FROM users WHERE email=%s', (email,))
+    user = cur.fetchone()
+    
+    return jsonify({'available': user is None})

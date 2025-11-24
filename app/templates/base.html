@@ -1,44 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>
-            {% block title %}
-            {% endblock title %}
+            {% block title %}Protein Money Time{% endblock title %}
         </title>
-        <meta name="description" content="">
+        <meta name="description" content="Find healthy, affordable recipes based on cooking time">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
+        
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        
+        <!-- Tailwind CSS CDN -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <!-- Custom configuration -->
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            'brand-orange': '#FF6B35',
+                            'brand-green': '#4ECDC4',
+                            'brand-yellow': '#FFD93D',
+                            'brand-gray': '#2C3E50',
+                        },
+                        fontFamily: {
+                            'sans': ['Poppins', 'system-ui', 'sans-serif'],
+                        }
+                    }
+                }
+            }
+        </script>
     </head>
-    <body>
-        <nav>
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.index') }}">Inicio</a>
-                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-                <form method="POST" action="{{ url_for('auth.logout') }}" 
-                    style="display:inline;"
-                    onsubmit="return confirm('¿Quieres cerrar sesión?');">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <button type="submit">Cerrar sesión</button>
-                </form>
-            {% else %}
-                <a href="{{ url_for('main.index') }}">Inicio</a>
-                <a href="{{ url_for('auth.register') }}">Registrarse</a>
-                <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
-            {% endif %}
+    
+    <body class="bg-gray-50 min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo/Brand -->
+                    <div class="flex-shrink-0">
+                        <a href="{{ url_for('main.index') }}" class="text-lg sm:text-xl md:text-2xl font-bold text-brand-orange">
+                            <span class="hidden sm:inline">Protein 💪 <spanMoney 💰 Time ⏱️</span>
+                            <span class="sm:hidden">PMT 🍽️</span>
+                        </a>
+                    </div>
+                    
+                    <!-- Mobile Menu Button -->
+                    <div class="md:hidden">
+                        <button id="mobile-menu-button" type="button" 
+                                class="text-gray-700 hover:text-brand-orange focus:outline-none focus:text-brand-orange">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Desktop Navigation -->
+                    <div class="hidden md:flex items-center space-x-4">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.index') }}" 
+                                class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
+                                Inicio
+                            </a>
+                            <a href="{{ url_for('main.dashboard') }}" 
+                                class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
+                                Dashboard
+                            </a>
+                            <form method="POST" action="{{ url_for('auth.logout') }}" 
+                                    class="inline"
+                                    onsubmit="return confirm('¿Quieres cerrar sesión?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <button type="submit" 
+                                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md transition text-sm lg:text-base">
+                                    Cerrar sesión
+                                </button>
+                            </form>
+                        {% else %}
+                            <a href="{{ url_for('main.index') }}" 
+                                class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
+                                Inicio
+                            </a>
+                            <a href="{{ url_for('auth.register') }}" 
+                                class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
+                                Registrarse
+                            </a>
+                            <a href="{{ url_for('auth.login') }}" 
+                                class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
+                                Iniciar sesión
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.index') }}" 
+                            class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                            Inicio
+                        </a>
+                        <a href="{{ url_for('main.dashboard') }}" 
+                            class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                            Dashboard
+                        </a>
+                        <form method="POST" action="{{ url_for('auth.logout') }}" 
+                                onsubmit="return confirm('¿Quieres cerrar sesión?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" 
+                                    class="w-full text-left text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                                Cerrar sesión
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('main.index') }}" 
+                            class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                            Inicio
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" 
+                            class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                            Registrarse
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" 
+                            class="block bg-brand-orange hover:bg-orange-600 text-white px-3 py-2 rounded-md text-base font-medium">
+                            Iniciar sesión
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </nav>
 
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                    {% for category, message in messages %}
+                        {% if category == 'success' %}
+                            <div class="bg-green-100 border-l-4 border-brand-green text-green-700 p-3 sm:p-4 rounded mb-4 text-sm sm:text-base" role="alert">
+                                <p class="font-medium">✅ {{ message }}</p>
+                            </div>
+                        {% elif category == 'error' %}
+                            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 sm:p-4 rounded mb-4 text-sm sm:text-base" role="alert">
+                                <p class="font-medium">❌ {{ message }}</p>
+                            </div>
+                        {% else %}
+                            <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-3 sm:p-4 rounded mb-4 text-sm sm:text-base" role="alert">
+                                <p class="font-medium">ℹ️ {{ message }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
 
-        {% block content %}
-        {% endblock content %}
-        <script src="" async defer></script>
+        <!-- Main Content -->
+        <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 w-full">
+            {% block content %}
+            {% endblock content %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t mt-auto py-4 sm:py-6">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600 text-xs sm:text-sm">
+                <p>© 2025 Protein Money Time - Noémie&Rossana</p>
+            </div>
+        </footer>
+
+        <!-- Mobile Menu Toggle Script -->
+        <script>
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuIcon = document.getElementById('menu-icon');
+            const closeIcon = document.getElementById('close-icon');
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                menuIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            });
+        </script>
     </body>
 </html>
