@@ -1,4 +1,6 @@
-from flask import Flask
+#!/usr/bin/env python
+
+from flask import Flask, render_template
 import psycopg
 import os
 from dotenv import load_dotenv
@@ -17,10 +19,10 @@ def get_database_url():
     user = os.getenv("DB_USER")
     password = os.getenv("DB_PASSWORD")  # Raw password, no encoding needed
     host = os.getenv("DB_HOST")
-    port = os.getenv("DB_PORT", "5432")
     database = os.getenv("DB_NAME")
-    instance = os.getenv("CLOUD_SQL_INSTANCE")  # For production mode
-    # instance = None # For local dev mode, leave it empty and it'll use DB_HOST instead
+    instance = os.getenv(
+        "CLOUD_SQL_INSTANCE"
+    )  # For production mode, leave it empty in .env for local dev mode and it'll use DB_HOST instead
 
     # Auto-encode password
     encoded_password = quote(password, safe="") if password else ""
@@ -28,10 +30,10 @@ def get_database_url():
     # Build connection string based on environment
     if instance:
         # Cloud Run/App Engine: Unix socket
-        return f"postgresql://{user}:{encoded_password}@/{database}?host=/cloudsql/{instance}"
+        return f"postgresql://{user}:{encoded_password}@/{database}?host=/{host}/{instance}"
     else:
         # Local or TCP connection
-        return f"postgresql://{user}:{encoded_password}@{host}:{port}/{database}"
+        return f"dbname=pmt"
 
 
 @app.route("/")
@@ -51,13 +53,8 @@ def index():
             if len(results) < 3:
                 return "<p>Not enough products found.</p>"
 
-            return f"""
-            <H1>THIS IS NOT A WEIGHT-LOSS APP</H1>
-            <H2>Some results of a test query:</H2>
-            <p>Product: {results[0][1]}, Brand: {results[0][2]}</p>
-            <p>Product: {results[1][1]}, Brand: {results[1][2]}</p>
-            <p>Product: {results[2][1]}, Brand: {results[2][2]}</p>
-            """
+            return render_template("index.html", results=results)
+
     except Exception as e:
         # Log the exception, and return an error message
         return (
@@ -70,4 +67,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=True)

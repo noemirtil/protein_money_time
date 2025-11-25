@@ -19,11 +19,12 @@ WHERE "products"."name" ILIKE '%cornbread%'; -- case-insensitive version of LIKE
 -- To look for the 10 most cost-health effective products
 SELECT "products"."name" AS "Product name",
 SUM("prices"."weight" * "prices"."price") AS "Cost",
-"protein" AS "Protein",
-"fat" AS "Fat"
+"products"."protein" AS "Protein",
+"products"."fat" AS "Fat"
 FROM "products"
 JOIN "prices" ON "prices"."product_id" = "products"."id"
-ORDER BY "Cost", "Protein" DESC, "Fat"
+GROUP BY "products"."name", "products"."protein", "products"."fat"
+ORDER BY SUM("prices"."weight" * "prices"."price"), "products"."protein" DESC, "products"."fat"
 LIMIT 10;
 
 
