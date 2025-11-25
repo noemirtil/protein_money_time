@@ -10,32 +10,10 @@
 <body>
     <H1>THIS IS NOT A WEIGHT-LOSS APP</H1>
     <br>
-    <H2>Query update</H2>
+    <h2><a href="protein.html">Display food by Protein Score</a></h2>
+    <h2><a href="vitamin.html">Display food by Vitamin Score</a></h2>
     <br>
-    <H2>Some products ordered by efficiency score:</H2>
-    <table>
-        <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Grams</th>
-            <th>Price per kg</th>
-            <th>Protein</th>
-            <th>Fat</th>
-            <th>Efficiency Score</th>
-        </tr>
-        {% for row in results %}
-        <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}€</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
-            <td>{{ row[6] }}</td>
-        </tr>
-        {% endfor%}
-
-    </table>
+    {% block values %}{% endblock %}
 </body>
 
 </html>

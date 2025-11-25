@@ -16,20 +16,36 @@ JOIN "prices" ON "prices"."product_id" = "products"."id"
 JOIN "stores" ON "prices"."store_id" = "stores"."id"
 WHERE "products"."name" ILIKE '%cornbread%'; -- case-insensitive version of LIKE
 
--- To look for the most cost-health effective products
+-- To look for the highest Protein Score cost-effective products
 SELECT "products"."name" AS "Product name", "prices"."price" * 0.01 AS "Price", "prices"."weight" AS "Grams",
 ROUND(("prices"."price" * 0.01) / ("prices"."weight" * 0.001), 2) AS "Price per kg",
 "products"."protein" AS "Protein",
 "products"."fat" AS "Fat",
--- Efficiency Score: Protein per unit cost divided by fat content
+-- Protein Score: Protein per unit cost divided by fat content
 -- Higher protein, lower fat, lower cost = higher score
 -- Zero fat gets maximum boost (treated as 0.001 to avoid division issues)
-CAST(("products"."protein" / NULLIF(SUM("prices"."weight" * "prices"."price"), 0))
-/ GREATEST("products"."fat", 0.001) * 10000000 AS INT) AS "Efficiency Score"
+CAST(("products"."protein" / GREATEST(SUM("prices"."weight" * "prices"."price"), 0.01))
+/ GREATEST("products"."fat", 0.001) * 10000000 AS INT) AS "Protein Score"
 FROM "products"
 JOIN "prices" ON "prices"."product_id" = "products"."id"
 GROUP BY "products"."name", "products"."protein", "products"."fat", "prices"."price", "prices"."weight"
-ORDER BY "Efficiency Score" DESC NULLS LAST;
+ORDER BY "Protein Score" DESC NULLS LAST;
+
+
+-- To look for the highest Vitamin Score cost-effective products
+SELECT "products"."name" AS "Product name", "prices"."price" * 0.01 AS "Price", "prices"."weight" AS "Grams",
+ROUND(("prices"."price" * 0.01) / ("prices"."weight" * 0.001), 2) AS "Price per kg",
+"products"."c_vitamin" AS "C Vitamin",
+"products"."sodium" AS "Sodium",
+-- Vitamin Score: C Vitamin per unit cost divided by sodium content
+-- Higher C Vitamin, lower sodium, lower cost = higher score
+-- Zero sodium gets maximum boost (treated as 0.001 to avoid division issues)
+CAST(("products"."c_vitamin" / GREATEST(SUM("prices"."weight" * "prices"."price"), 0.01))
+/ GREATEST("products"."sodium", 0.001) * 1000000000 AS INT) AS "C Vitamin Score"
+FROM "products"
+JOIN "prices" ON "prices"."product_id" = "products"."id"
+GROUP BY "products"."name", "products"."c_vitamin", "products"."sodium", "prices"."price", "prices"."weight"
+ORDER BY "C Vitamin Score" DESC NULLS LAST;
 
 
 

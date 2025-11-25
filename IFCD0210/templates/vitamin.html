@@ -1,0 +1,31 @@
+{% extends "index.html" %}
+
+{% block values %}
+<H2>Vitamin Score: Vitamin C per unit cost divided by sodium</H2>
+<H2>Higher Vitamin C, lower sodium, lower cost = higher score</H2>
+<br>
+<H2>Some products ordered by Vitamin Score:</H2>
+<table>
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Grams</th>
+        <th>Price per kg</th>
+        <th>Protein</th>
+        <th>Fat</th>
+        <th>Vitamin Score</th>
+    </tr>
+    {% for row in results_vitamin %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}€</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[4] }}</td>
+        <td>{{ row[5] }}</td>
+        <td>{{ row[6] }}</td>
+    </tr>
+    {% endfor%}
+
+</table>
+{% endblock %}

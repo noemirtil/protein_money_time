@@ -10,7 +10,6 @@ from urllib.parse import quote
 
 # Load the environment variables from the .env file
 load_dotenv()
-# Now you can access the DATABASE_URL environment variable
 
 app = Flask(__name__)
 
@@ -37,33 +36,68 @@ def get_database_url():
 
 
 @app.route("/")
-def index():
+@app.route("/index.html")
+@app.route("/protein.html")
+def protein():
     try:
         conn_string = get_database_url()
         with psycopg.connect(conn_string) as conn:
-            results = conn.execute(
+            results_protein = conn.execute(
                 """
 SELECT "products"."name" AS "Product name", "prices"."price" * 0.01 AS "Price", "prices"."weight" AS "Grams",
 ROUND(("prices"."price" * 0.01) / ("prices"."weight" * 0.001), 2) AS "Price per kg",
 "products"."protein" AS "Protein",
 "products"."fat" AS "Fat",
-CAST(("products"."protein" / NULLIF(SUM("prices"."weight" * "prices"."price"), 0))
-/ GREATEST("products"."fat", 0.001) * 10000000 AS INT) AS "Efficiency Score"
+CAST(("products"."protein" / GREATEST(SUM("prices"."weight" * "prices"."price"), 0.01))
+/ GREATEST("products"."fat", 0.001) * 10000000 AS INT) AS "Protein Score"
 FROM "products"
 JOIN "prices" ON "prices"."product_id" = "products"."id"
 GROUP BY "products"."name", "products"."protein", "products"."fat", "prices"."price", "prices"."weight"
-ORDER BY "Efficiency Score" DESC NULLS LAST;
+ORDER BY "Protein Score" DESC NULLS LAST;
             """
             ).fetchall()
 
-            # Safely build output, check if results exist
-            if len(results) < 3:
+            if len(results_protein) < 3:
                 return "<p>Not enough products found.</p>"
 
-            return render_template("index.html", results=results)
+            return render_template("protein.html", results_protein=results_protein)
 
     except Exception as e:
-        # Log the exception, and return an error message
+        return (
+            f"""
+        <p>Database error:</p>
+        <p>{str(e)}</p>
+        """,
+            500,
+        )
+
+
+@app.route("/vitamin.html")
+def vitamin():
+    try:
+        conn_string = get_database_url()
+        with psycopg.connect(conn_string) as conn:
+            results_vitamin = conn.execute(
+                """
+SELECT "products"."name" AS "Product name", "prices"."price" * 0.01 AS "Price", "prices"."weight" AS "Grams",
+ROUND(("prices"."price" * 0.01) / ("prices"."weight" * 0.001), 2) AS "Price per kg",
+"products"."c_vitamin" AS "C Vitamin",
+"products"."sodium" AS "Sodium",
+CAST(("products"."c_vitamin" / GREATEST(SUM("prices"."weight" * "prices"."price"), 0.01))
+/ GREATEST("products"."sodium", 0.001) * 1000000000 AS INT) AS "C Vitamin Score"
+FROM "products"
+JOIN "prices" ON "prices"."product_id" = "products"."id"
+GROUP BY "products"."name", "products"."c_vitamin", "products"."sodium", "prices"."price", "prices"."weight"
+ORDER BY "C Vitamin Score" DESC NULLS LAST;
+            """
+            ).fetchall()
+
+            if len(results_vitamin) < 3:
+                return "<p>Not enough products found.</p>"
+
+            return render_template("vitamin.html", results_vitamin=results_vitamin)
+
+    except Exception as e:
         return (
             f"""
         <p>Database error:</p>

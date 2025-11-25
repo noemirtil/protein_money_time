@@ -1,11 +1,11 @@
--- DROP TABLE IF EXISTS "users" CASCADE;
--- DROP TABLE IF EXISTS "brands" CASCADE;
--- DROP TABLE IF EXISTS "products" CASCADE;
--- DROP TABLE IF EXISTS "currencies" CASCADE;
--- DROP TABLE IF EXISTS "countries" CASCADE;
--- DROP TABLE IF EXISTS "junction_currency_country" CASCADE;
--- DROP TABLE IF EXISTS "stores" CASCADE;
--- DROP TABLE IF EXISTS "prices" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
+DROP TABLE IF EXISTS "brands" CASCADE;
+DROP TABLE IF EXISTS "products" CASCADE;
+DROP TABLE IF EXISTS "currencies" CASCADE;
+DROP TABLE IF EXISTS "countries" CASCADE;
+DROP TABLE IF EXISTS "junction_currency_country" CASCADE;
+DROP TABLE IF EXISTS "stores" CASCADE;
+DROP TABLE IF EXISTS "prices" CASCADE;
 
 -- Represent every user registered in the platform
 -- Count the number of its contributions to show in their profile
