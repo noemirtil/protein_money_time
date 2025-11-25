@@ -18,6 +18,7 @@ def register():
     form = RegistrationForm()
     db = get_db()
     cur = db.cursor()
+    
     if form.validate_on_submit():
         try:
             username = form.username.data.strip().lower()
@@ -28,11 +29,16 @@ def register():
                 "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
                 (username, email, hashed_password)
             )
-            
             db.commit()
             
-            flash('¡Registro exitoso! Ahora puedes iniciar sesión.', 'success')
-            return redirect(url_for('auth.login'))
+            cur.execute("SELECT * FROM users WHERE username=%s",(username,))
+            user_dict = cur.fetchone()
+            
+            if user_dict:
+                user_obj = User(user_dict)
+                login_user(user_obj)
+                flash('¡Bienvenid@! Tu cuenta ha sido creada.', 'success')
+                return redirect(url_for('main.dashboard'))
             
         except Exception as e:
             db.rollback()

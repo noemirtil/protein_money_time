@@ -5,29 +5,83 @@
 {% endblock title %}
 
 {% block content %}
-    <h2>Inicia sesión</h2>
-    <form method='POST' action="{{ url_for('auth.login') }}">
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center py-8">
+    <div class="bg-white rounded-lg shadow-xl p-6 sm:p-8 md:p-10 w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-6">
+            <h2 class="text-2xl sm:text-3xl font-bold text-brand-gray">Inicia sesión</h2>
+        </div>
 
-        {{ form.hidden_tag() }}
+        <!-- Form -->
+        <form method='POST' action="{{ url_for('auth.login') }}" class="space-y-4">
+            {{ form.hidden_tag() }}
 
-        {{ form.username_email.label }} {{ form.username_email(size=20) }}
-        {% if form.username_email.errors %}
-            <ul class="errors">
-            {% for error in form.username_email.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
+            <!-- Username/Email Field -->
+            <div>
+                <label for="username_email" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.username_email.label.text }}
+                </label>
+                {{ form.username_email(
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
+                    placeholder="Usuario o email"
+                ) }}
+                {% if form.username_email.errors %}
+                    <div class="mt-1">
+                        {% for error in form.username_email.errors %}
+                            <p class="text-red-600 text-sm">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-        {{ form.password.label }} {{ form.password(size=20) }}
-        {% if form.password.errors %}
-            <ul class="errors">
-            {% for error in form.password.errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
+            <!-- Password Field -->
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.password.label.text }}
+                </label>
+                
+                <div class="relative">
+                    {{ form.password(
+                        class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
+                        placeholder="Tu contraseña"
+                    ) }}
 
-        <button type='submit'>Iniciar sesión</button>
-    </form>
+                    <button type="button" 
+                            id="toggle-password"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                        👁️
+                    </button>
+                </div>
+                
+                {% if form.password.errors %}
+                    <div class="mt-1">
+                        {% for error in form.password.errors %}
+                            <p class="text-red-600 text-sm">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+                <button type="submit" 
+                        class="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base">
+                    Iniciar sesión
+                </button>
+            </div>
+        </form>
+
+        <!-- Register Link -->
+        <div class="mt-6 text-center">
+            <p class="text-gray-600 text-sm">
+                ¿No tienes cuenta? 
+                <a href="{{ url_for('auth.register') }}" class="text-brand-orange hover:text-orange-600 font-medium hover:underline">
+                    Regístrate
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/form-validation.js') }}"></script>
 {% endblock content %}

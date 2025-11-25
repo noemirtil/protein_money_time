@@ -4,6 +4,10 @@ function checkPasswordsMatch() {
     const confirmPasswordField = document.getElementById('confirm_password');
     const messageDiv = document.getElementById('password-match-message');
 
+    if (!passwordField || !confirmPasswordField || !messageDiv) {
+        return;
+    }
+
     confirmPasswordField.addEventListener('input', function() {
 
         const password = passwordField.value;
@@ -30,6 +34,10 @@ function checkPasswordValidity() {
     const passwordField = document.getElementById('password');
     const messageDiv = document.getElementById('password-validation-message');
 
+    if (!passwordField || !messageDiv) {
+        return;
+    }
+
     passwordField.addEventListener('input', function() {
 
         const password = passwordField.value;
@@ -51,6 +59,10 @@ function checkUsernameAvailability() {
     const usernameField = document.getElementById('username');
     const messageDiv = document.getElementById('username-message');
     let timeoutId = null;
+
+    if (!usernameField || !messageDiv) {
+        return;
+    }
 
     usernameField.addEventListener('input', function() {
 
@@ -95,6 +107,10 @@ function checkEmailAvailability() {
     const messageDiv = document.getElementById('email-message');
     let timeoutId = null;
 
+    if (!emailField || !messageDiv) {
+        return;
+    }
+
     emailField.addEventListener('input', function() {
 
         const email = emailField.value.trim().toLowerCase();
@@ -138,7 +154,47 @@ function checkEmailAvailability() {
     });
 }
 
+function togglePasswordVisibility() {
+    const passwordField = document.getElementById('password');
+    const toggleButton = document.getElementById('toggle-password');
+
+    if (!passwordField || !toggleButton) {
+        return;
+    }
+
+    toggleButton.addEventListener('click', function() {
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleButton.textContent = '🙈';
+        } else {
+            passwordField.type = 'password';
+            toggleButton.textContent = '👁️';
+        }
+    });
+}
+
+function toggleConfirmPasswordVisibility() {
+    const confirmPasswordField = document.getElementById('confirm_password');
+    const toggleButton = document.getElementById('toggle-confirm-password');
+
+    if (!confirmPasswordField || !toggleButton) {
+        return;
+    }
+
+    toggleButton.addEventListener('click', function() {
+        if (confirmPasswordField.type === 'password') {
+            confirmPasswordField.type = 'text';
+            toggleButton.textContent = '🙈';
+        } else {
+            confirmPasswordField.type = 'password';
+            toggleButton.textContent = '👁️';
+        }
+    });
+}
+
 checkPasswordsMatch();
 checkPasswordValidity();
 checkUsernameAvailability();
 checkEmailAvailability();
+togglePasswordVisibility();
+toggleConfirmPasswordVisibility();
