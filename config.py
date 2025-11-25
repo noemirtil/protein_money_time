@@ -7,6 +7,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
     SCHEMA_PATH = 'db/schema.sql'
+    SEED_PATH ='db/seed.sql'
     
     #Database config (PostgreSQL)
     DATABASE_HOST = os.getenv('DATABASE_HOST', 'localhost')
