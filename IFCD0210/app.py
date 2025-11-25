@@ -43,9 +43,16 @@ def index():
         with psycopg.connect(conn_string) as conn:
             results = conn.execute(
                 """
-                SELECT products.off_code, products.name, brands.name, brands.website
-                FROM products
-                JOIN brands ON brands.id = products.brand_id
+SELECT "products"."name" AS "Product name", "prices"."price" * 0.01 AS "Price", "prices"."weight" AS "Grams",
+ROUND(("prices"."price" * 0.01) / ("prices"."weight" * 0.001), 2) AS "Price per kg",
+"products"."protein" AS "Protein",
+"products"."fat" AS "Fat",
+CAST(("products"."protein" / NULLIF(SUM("prices"."weight" * "prices"."price"), 0))
+/ GREATEST("products"."fat", 0.001) * 10000000 AS INT) AS "Efficiency Score"
+FROM "products"
+JOIN "prices" ON "prices"."product_id" = "products"."id"
+GROUP BY "products"."name", "products"."protein", "products"."fat", "prices"."price", "prices"."weight"
+ORDER BY "Efficiency Score" DESC NULLS LAST;
             """
             ).fetchall()
 

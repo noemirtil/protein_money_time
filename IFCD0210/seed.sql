@@ -1,11 +1,11 @@
-DELETE FROM "users" CASCADE;
-DELETE FROM "products" CASCADE;
-DELETE FROM "brands" CASCADE;
-DELETE FROM "junction_currency_country" CASCADE;
-DELETE FROM "currencies" CASCADE;
-DELETE FROM "stores" CASCADE;
-DELETE FROM "countries" CASCADE;
-DELETE FROM "prices" CASCADE;
+-- DELETE FROM "users" CASCADE;
+-- DELETE FROM "products" CASCADE;
+-- DELETE FROM "brands" CASCADE;
+-- DELETE FROM "junction_currency_country" CASCADE;
+-- DELETE FROM "currencies" CASCADE;
+-- DELETE FROM "stores" CASCADE;
+-- DELETE FROM "countries" CASCADE;
+-- DELETE FROM "prices" CASCADE;
 
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),
@@ -115,8 +115,8 @@ BEGIN
         VALUES (
             (SELECT "id" FROM "products" WHERE "off_code" = row.off_code),
             (SELECT "id" FROM "stores" WHERE "name" = 'Carrefour'),
-            (trunc(random()*999)),
-            (trunc(random()*500)),
+            (trunc((random()*798) + 201)),
+            (trunc((random()*399) + 101)),
             1,
             (SELECT "id" FROM "currencies" WHERE "currency_code" = 'USD'),
             (SELECT "id" FROM "users" WHERE "username" = 'Noemi'),

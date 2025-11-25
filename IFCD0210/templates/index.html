@@ -10,12 +10,32 @@
 <body>
     <H1>THIS IS NOT A WEIGHT-LOSS APP</H1>
     <br>
-    <H2>connect update</H2>
+    <H2>Query update</H2>
     <br>
-    <H2>Some results of a test query:</H2>
-    <p>Product: {{ results[0][1] }}, Brand: {{ results[0][2] }}</p>
-    <p>Product: {{ results[1][1] }}, Brand: {{ results[1][2] }}</p>
-    <p>Product: {{ results[2][1] }}, Brand: {{ results[2][2] }}</p>
+    <H2>Some products ordered by efficiency score:</H2>
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Grams</th>
+            <th>Price per kg</th>
+            <th>Protein</th>
+            <th>Fat</th>
+            <th>Efficiency Score</th>
+        </tr>
+        {% for row in results %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}€</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[4] }}</td>
+            <td>{{ row[5] }}</td>
+            <td>{{ row[6] }}</td>
+        </tr>
+        {% endfor%}
+
+    </table>
 </body>
 
 </html>

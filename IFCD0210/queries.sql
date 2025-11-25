@@ -16,16 +16,21 @@ JOIN "prices" ON "prices"."product_id" = "products"."id"
 JOIN "stores" ON "prices"."store_id" = "stores"."id"
 WHERE "products"."name" ILIKE '%cornbread%'; -- case-insensitive version of LIKE
 
--- To look for the 10 most cost-health effective products
-SELECT "products"."name" AS "Product name",
-SUM("prices"."weight" * "prices"."price") AS "Cost",
+-- To look for the most cost-health effective products
+SELECT "products"."name" AS "Product name", "prices"."price" * 0.01 AS "Price", "prices"."weight" AS "Grams",
+ROUND(("prices"."price" * 0.01) / ("prices"."weight" * 0.001), 2) AS "Price per kg",
 "products"."protein" AS "Protein",
-"products"."fat" AS "Fat"
+"products"."fat" AS "Fat",
+-- Efficiency Score: Protein per unit cost divided by fat content
+-- Higher protein, lower fat, lower cost = higher score
+-- Zero fat gets maximum boost (treated as 0.001 to avoid division issues)
+CAST(("products"."protein" / NULLIF(SUM("prices"."weight" * "prices"."price"), 0))
+/ GREATEST("products"."fat", 0.001) * 10000000 AS INT) AS "Efficiency Score"
 FROM "products"
 JOIN "prices" ON "prices"."product_id" = "products"."id"
-GROUP BY "products"."name", "products"."protein", "products"."fat"
-ORDER BY SUM("prices"."weight" * "prices"."price"), "products"."protein" DESC, "products"."fat"
-LIMIT 10;
+GROUP BY "products"."name", "products"."protein", "products"."fat", "prices"."price", "prices"."weight"
+ORDER BY "Efficiency Score" DESC NULLS LAST;
+
 
 
 
