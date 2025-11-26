@@ -57,6 +57,7 @@ ORDER BY "C Vitamin Score" DESC NULLS LAST;
 -- To look for the highest Protein Score cost-effective products
 SELECT
     products.id,
+    products.name,
     products.energy,
     products.fat,
     products.sat_fat,
@@ -89,6 +90,7 @@ LEFT JOIN countries ON stores.country_id = countries.id
 LEFT JOIN currencies ON prices.currency_id = currencies.id
 GROUP BY
     products.id,
+    products.name,
     products.energy,
     products.fat,
     products.sat_fat,
@@ -114,6 +116,7 @@ LIMIT %s OFFSET %s;
 -- To look for the highest Vitamin Score cost-effective products
 SELECT
     products.id,
+    products.name,
     products.energy,
     products.fat,
     products.sat_fat,
@@ -146,6 +149,7 @@ LEFT JOIN countries ON stores.country_id = countries.id
 LEFT JOIN currencies ON prices.currency_id = currencies.id
 GROUP BY
     products.id,
+    products.name,
     products.energy,
     products.fat,
     products.sat_fat,

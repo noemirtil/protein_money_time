@@ -19,6 +19,7 @@ def index():
         """
 SELECT
     products.id,
+    products.name,
     products.energy,
     products.fat,
     products.sat_fat,
@@ -48,6 +49,7 @@ LEFT JOIN countries ON stores.country_id = countries.id
 LEFT JOIN currencies ON prices.currency_id = currencies.id
 GROUP BY
     products.id,
+    products.name,
     products.energy,
     products.fat,
     products.sat_fat,
