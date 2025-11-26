@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, url_for, redirect, flash, request, jsonify
 from app.db.connection import get_db
 from config import Config
-from psycopg2.extras import RealDictCursor
 from app.forms.auth_forms import RegistrationForm, LoginForm
 from werkzeug.security import generate_password_hash
 from app.models.user import User
@@ -38,7 +37,7 @@ def register():
                 user_obj = User(user_dict)
                 login_user(user_obj)
                 flash('¡Bienvenid@! Tu cuenta ha sido creada.', 'success')
-                return redirect(url_for('main.dashboard'))
+                return redirect(url_for('main.index'))
             
         except Exception as e:
             db.rollback()
@@ -72,7 +71,7 @@ def login():
                 if user_obj.is_password_correct(password):
                     login_user(user_obj)
                     flash(f'¡Bienvenid@, {user_obj.username}!', 'success')
-                    return redirect(url_for('main.dashboard'))
+                    return redirect(url_for('main.index'))
                 else:
                     flash('Credenciales incorrectas. Intente nuevamente.', 'error')
                     return redirect(url_for('auth.login'))

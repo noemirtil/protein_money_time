@@ -74,10 +74,6 @@
                                 class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
                                 Inicio
                             </a>
-                            <a href="{{ url_for('main.dashboard') }}" 
-                                class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                                Dashboard
-                            </a>
                             <form method="POST" action="{{ url_for('auth.logout') }}" 
                                     class="inline"
                                     onsubmit="return confirm('¿Quieres cerrar sesión?');">
@@ -112,10 +108,6 @@
                         <a href="{{ url_for('main.index') }}" 
                             class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
                             Inicio
-                        </a>
-                        <a href="{{ url_for('main.dashboard') }}" 
-                            class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
-                            Dashboard
                         </a>
                         <form method="POST" action="{{ url_for('auth.logout') }}" 
                                 onsubmit="return confirm('¿Quieres cerrar sesión?');">
