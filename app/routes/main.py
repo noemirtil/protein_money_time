@@ -14,65 +14,21 @@ def index():
     per_page = 20
     offset = (page - 1) * per_page
 
-    cur.execute(
-        # To look for the highest Protein Score cost-effective products
-        """
-SELECT
-    products.id,
-    products.name,
-    products.energy,
-    products.fat,
-    products.sat_fat,
-    products.sodium,
-    products.carbs,
-    products.fiber,
-    products.sugars,
-    products.protein,
-    products.c_vitamin,
-    products.nutr_score_fr,
-    products.ingredients_text,
-    brands."name" AS brand_name,
-    prices.price * 0.01 AS price,
-    prices.weight,
-    ROUND((prices.price * 0.01) / (prices.weight * 0.001), 2) AS price_per_kg,
-    prices."date" AS price_date,
-    stores."name" AS store_name,
-    countries.country,
-    currencies.currency_code,
-    CAST((products.protein / GREATEST(SUM(prices.weight * prices.price), 0.01))
-    / GREATEST(products.fat, 0.001) * 10000000 AS INT) AS protein_score
-FROM products
-LEFT JOIN prices ON prices.product_id = products.id
-LEFT JOIN brands ON products.brand_id = brands.id
-LEFT JOIN stores ON prices.store_id = stores.id
-LEFT JOIN countries ON stores.country_id = countries.id
-LEFT JOIN currencies ON prices.currency_id = currencies.id
-GROUP BY
-    products.id,
-    products.name,
-    products.energy,
-    products.fat,
-    products.sat_fat,
-    products.sodium,
-    products.carbs,
-    products.fiber,
-    products.sugars,
-    products.protein,
-    products.c_vitamin,
-    products.nutr_score_fr,
-    products.ingredients_text,
-    brands."name",
-    prices.price,
-    prices.weight,
-    prices."date",
-    stores."name",
-    countries.country,
-    currencies.currency_code
-ORDER BY protein_score DESC NULLS LAST
-LIMIT %s OFFSET %s
-    """,
-        (per_page, offset),
-    )
+    if request.args.get("query") == "get_c_vitamin_score()":
+        cur.execute(
+            get_c_vitamin_score(),
+            (per_page, offset),
+        )
+    elif request.args.get("query") == "get_protein_score()":
+        cur.execute(
+            get_protein_score(),
+            (per_page, offset),
+        )
+    else:
+        cur.execute(
+            get_protein_score(),
+            (per_page, offset),
+        )
 
     products = cur.fetchall()
 
@@ -83,3 +39,123 @@ LIMIT %s OFFSET %s
     return render_template(
         "main/index.html", products=products, page=page, total_pages=total_pages
     )
+
+
+def get_protein_score():
+    # To look for the highest Protein Score cost-effective products
+    query = """
+    SELECT
+        products.id,
+        products.name,
+        products.energy,
+        products.fat,
+        products.sat_fat,
+        products.sodium,
+        products.carbs,
+        products.fiber,
+        products.sugars,
+        products.protein,
+        products.c_vitamin,
+        products.nutr_score_fr,
+        products.ingredients_text,
+        brands."name" AS brand_name,
+        prices.price * 0.01 AS price,
+        prices.weight,
+        ROUND((prices.price * 0.01) / (prices.weight * 0.001), 2) AS price_per_kg,
+        prices."date" AS price_date,
+        stores."name" AS store_name,
+        countries.country,
+        currencies.currency_code,
+        CAST((products.protein / GREATEST(SUM(prices.weight * prices.price), 0.01))
+        / GREATEST(products.fat, 0.001) * 10000000 AS INT) AS protein_score
+    FROM products
+    LEFT JOIN prices ON prices.product_id = products.id
+    LEFT JOIN brands ON products.brand_id = brands.id
+    LEFT JOIN stores ON prices.store_id = stores.id
+    LEFT JOIN countries ON stores.country_id = countries.id
+    LEFT JOIN currencies ON prices.currency_id = currencies.id
+    GROUP BY
+        products.id,
+        products.name,
+        products.energy,
+        products.fat,
+        products.sat_fat,
+        products.sodium,
+        products.carbs,
+        products.fiber,
+        products.sugars,
+        products.protein,
+        products.c_vitamin,
+        products.nutr_score_fr,
+        products.ingredients_text,
+        brands."name",
+        prices.price,
+        prices.weight,
+        prices."date",
+        stores."name",
+        countries.country,
+        currencies.currency_code
+    ORDER BY protein_score DESC NULLS LAST
+    LIMIT %s OFFSET %s
+        """
+    return query
+
+
+def get_c_vitamin_score():
+    # To look for the highest C Vitamin Score cost-effective products
+    query = """
+    SELECT
+        products.id,
+        products.name,
+        products.energy,
+        products.fat,
+        products.sat_fat,
+        products.sodium,
+        products.carbs,
+        products.fiber,
+        products.sugars,
+        products.protein,
+        products.c_vitamin,
+        products.nutr_score_fr,
+        products.ingredients_text,
+        brands."name" AS brand_name,
+        prices.price * 0.01 AS price,
+        prices.weight,
+        ROUND((prices.price * 0.01) / (prices.weight * 0.001), 2) AS price_per_kg,
+        prices."date" AS price_date,
+        stores."name" AS store_name,
+        countries.country,
+        currencies.currency_code,
+        CAST((products.c_vitamin / GREATEST(SUM(prices.weight * prices.price), 0.01))
+        / GREATEST(products.sodium, 0.001) * 1000000000 AS INT) AS c_vitamin_score
+    FROM products
+    LEFT JOIN prices ON prices.product_id = products.id
+    LEFT JOIN brands ON products.brand_id = brands.id
+    LEFT JOIN stores ON prices.store_id = stores.id
+    LEFT JOIN countries ON stores.country_id = countries.id
+    LEFT JOIN currencies ON prices.currency_id = currencies.id
+    GROUP BY
+        products.id,
+        products.name,
+        products.energy,
+        products.fat,
+        products.sat_fat,
+        products.sodium,
+        products.carbs,
+        products.fiber,
+        products.sugars,
+        products.protein,
+        products.c_vitamin,
+        products.nutr_score_fr,
+        products.ingredients_text,
+        brands."name",
+        prices.price,
+        prices.weight,
+        prices."date",
+        stores."name",
+        countries.country,
+        currencies.currency_code
+    ORDER BY c_vitamin_score DESC NULLS LAST
+    LIMIT %s OFFSET %s;
+        """
+    return query

@@ -1,61 +1,66 @@
 {% extends "base.html" %}
 
 {% block title %}
-    App name
+App name
 {% endblock title %}
 
 {% block content %}
-    <h1>Hello! This app is running!</h1>
-    {% if current_user.is_authenticated %}
-        <p>Hello, {{ current_user.username }}</p>
-    {% endif %}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-        {% for product in products %}
-            
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight">
-                    {{ product.name.upper() }}
-                </h3>
-                <div>
-                    <p>Serving size</p>
-                    <p>100g</p>
-                </div>
-            </div>
+<h1>Hello! This app is running!</h1>
+<form action="/" method="get">
+    <input name="query" type="hidden" value="get_protein_score()">
+    <button type="submit">By Protein Score</button>
+</form>
+<form action="/" method="get">
+    <input name="query" type="hidden" value="get_c_vitamin_score()">
+    <button type="submit">By Vitamin Score</button>
+</form>
+{% if current_user.is_authenticated %}
+<p>Hello, {{ current_user.username }}</p>
+{% endif %}
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+    {% for product in products %}
 
-
-        {% endfor %}
+    <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+        <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight">
+            {{ product.name.upper() }}
+        </h3>
+        <div>
+            <p>Serving size</p>
+            <p>100g</p>
+        </div>
     </div>
 
-    <!-- Previous button -->
-    {% if total_pages > 1 %}
-        <a href="?page={{ page - 1}}">← Previous</a>
-    {% else %}
-        ← Previous
-    {% endif %}
 
-    {% for page_num in range(1, total_pages + 1) %}
-        {% if page_num == page %}
-            {{ page_num }}
-        {% else %}
-            <a href="?page={{ page_num }}">
-                {{ page_num }}
-            </a>
-        {% endif %}
     {% endfor %}
+</div>
 
-    <!-- Next button -->
-    
-    {% if page < total_pages %}
-        <a href="?page={{ page + 1 }}">
-            Next →
-        </a>
+<!-- Previous button -->
+{% if total_pages > 1 %}
+<a href="?page={{ page - 1}}">← Previous</a>
+{% else %}
+← Previous
+{% endif %}
+
+{% for page_num in range(1, total_pages + 1) %}
+{% if page_num == page %}
+{{ page_num }}
+{% else %}
+<a href="?page={{ page_num }}">
+    {{ page_num }}
+</a>
+{% endif %}
+{% endfor %}
+
+<!-- Next button -->
+
+{% if page < total_pages %} <a href="?page={{ page + 1 }}">
+    Next →
+    </a>
     {% else %}
-        Next →        
+    Next →
     {% endif %}
-        
-        
 
 
-{% endblock content %}
-    
-    
+
+
+    {% endblock content %}
