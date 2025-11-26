@@ -50,6 +50,125 @@ ORDER BY "C Vitamin Score" DESC NULLS LAST;
 
 
 
+-- ================= SAME BUT UPDATED FOR NEW CARDS FRONTEND =============================
+
+
+
+-- To look for the highest Protein Score cost-effective products
+SELECT
+    products.id,
+    products.energy,
+    products.fat,
+    products.sat_fat,
+    products.sodium,
+    products.carbs,
+    products.fiber,
+    products.sugars,
+    products.protein,
+    products.c_vitamin,
+    products.nutr_score_fr,
+    products.ingredients_text,
+    brands."name" AS brand_name,
+    prices.price * 0.01 AS price,
+    prices.weight,
+    ROUND((prices.price * 0.01) / (prices.weight * 0.001), 2) AS price_per_kg,
+    prices."date" AS price_date,
+    stores."name" AS store_name,
+    countries.country,
+    currencies.currency_code,
+-- protein_score: Protein per unit cost divided by fat content
+-- Higher protein, lower fat, lower cost = higher score
+-- Zero fat gets maximum boost (treated as 0.001 to avoid division issues)
+    CAST((products.protein / GREATEST(SUM(prices.weight * prices.price), 0.01))
+    / GREATEST(products.fat, 0.001) * 10000000 AS INT) AS protein_score
+FROM products
+LEFT JOIN prices ON prices.product_id = products.id
+LEFT JOIN brands ON products.brand_id = brands.id
+LEFT JOIN stores ON prices.store_id = stores.id
+LEFT JOIN countries ON stores.country_id = countries.id
+LEFT JOIN currencies ON prices.currency_id = currencies.id
+GROUP BY
+    products.id,
+    products.energy,
+    products.fat,
+    products.sat_fat,
+    products.sodium,
+    products.carbs,
+    products.fiber,
+    products.sugars,
+    products.protein,
+    products.c_vitamin,
+    products.nutr_score_fr,
+    products.ingredients_text,
+    brands."name",
+    prices.price,
+    prices.weight,
+    prices."date",
+    stores."name",
+    countries.country,
+    currencies.currency_code
+ORDER BY protein_score DESC NULLS LAST
+LIMIT %s OFFSET %s;
+
+
+-- To look for the highest Vitamin Score cost-effective products
+SELECT
+    products.id,
+    products.energy,
+    products.fat,
+    products.sat_fat,
+    products.sodium,
+    products.carbs,
+    products.fiber,
+    products.sugars,
+    products.protein,
+    products.c_vitamin,
+    products.nutr_score_fr,
+    products.ingredients_text,
+    brands."name" AS brand_name,
+    prices.price * 0.01 AS price,
+    prices.weight,
+    ROUND((prices.price * 0.01) / (prices.weight * 0.001), 2) AS price_per_kg,
+    prices."date" AS price_date,
+    stores."name" AS store_name,
+    countries.country,
+    currencies.currency_code,
+-- c_vitamin_score: C Vitamin per unit cost divided by sodium content
+-- Higher C Vitamin, lower sodium, lower cost = higher score
+-- Zero sodium gets maximum boost (treated as 0.001 to avoid division issues)
+    CAST((products.c_vitamin / GREATEST(SUM(prices.weight * prices.price), 0.01))
+    / GREATEST(products.sodium, 0.001) * 1000000000 AS INT) AS c_vitamin_score
+FROM products
+LEFT JOIN prices ON prices.product_id = products.id
+LEFT JOIN brands ON products.brand_id = brands.id
+LEFT JOIN stores ON prices.store_id = stores.id
+LEFT JOIN countries ON stores.country_id = countries.id
+LEFT JOIN currencies ON prices.currency_id = currencies.id
+GROUP BY
+    products.id,
+    products.energy,
+    products.fat,
+    products.sat_fat,
+    products.sodium,
+    products.carbs,
+    products.fiber,
+    products.sugars,
+    products.protein,
+    products.c_vitamin,
+    products.nutr_score_fr,
+    products.ingredients_text,
+    brands."name",
+    prices.price,
+    prices.weight,
+    prices."date",
+    stores."name",
+    countries.country,
+    currencies.currency_code
+ORDER BY c_vitamin_score DESC NULLS LAST
+LIMIT %s OFFSET %s;
+
+
+
 
 -- -- To look for a time-cost-effective recipe
 -- SELECT "recipe",
