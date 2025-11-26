@@ -5,57 +5,177 @@
 {% endblock title %}
 
 {% block content %}
-    <h1>Hello! This app is running!</h1>
+
     {% if current_user.is_authenticated %}
         <p>Hello, {{ current_user.username }}</p>
     {% endif %}
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {% for product in products %}
-            
             <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-                <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight">
+                <!-- Product Name -->
+                <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight mb-2">
                     {{ product.name.upper() }}
                 </h3>
-                <div>
+                
+                <!-- Serving Size Header -->
+                <hr class="bg-gray-900 h-px mb-2">
+                <div class="flex flex-row justify-between text-base font-medium text-gray-700">
                     <p>Serving size</p>
                     <p>100g</p>
                 </div>
-            </div>
+                
+                <!-- Thick Divider for Nutritional Section -->
+                <hr class="bg-gray-900 h-3 my-4">
+                
+                <!-- Nutritional Information - Amount per serving -->
+                <p class="text-xs font-medium text-gray-500 mb-2">Amount per serving (per 100g)</p>
+                
+                <!-- ENERGY (kj and kcal) -->
+                <div class="grid grid-cols-2 items-baseline border-b border-gray-200 py-1">
+                    <p class="text-lg font-semibold text-gray-700">Energy</p>
+                    <p class="text-xl font-bold text-right text-gray-700">{{ product.energy }} kj</p>
+                    <!-- Kcal is placed on the next line in the second column -->
+                    <p class="col-span-2 text-xl font-bold text-right text-gray-700">{{ (product.energy * 0.239006) | round(0) | int }} kcal</p>
+                </div>
 
+                <!-- MACROS and MICROS -->
+                {% if product.fat is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1">
+                    <p class="text-base font-normal text-gray-700 ml-2">Fat</p>
+                    <p class="text-base font-semibold text-right text-gray-700">{{ product.fat | round(1) }} g</p>
+                </div>
+                {% endif %}
+
+                {% if product.sat_fat is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1 pl-4">
+                    <p class="text-sm font-light text-gray-600">— Saturated Fat</p>
+                    <p class="text-sm font-normal text-right text-gray-600">{{ product.sat_fat | round(1) }} g</p>
+                </div>
+                {% endif %}
+
+                {% if product.carbs is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1">
+                    <p class="text-base font-normal text-gray-700 ml-2">Carbohydrates</p>
+                    <p class="text-base font-semibold text-right text-gray-700">{{ product.carbs | round(1) }} g</p>
+                </div>
+                {% endif %}
+
+                {% if product.sugars is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1 pl-4">
+                    <p class="text-sm font-light text-gray-600">— Sugars</p>
+                    <p class="text-sm font-normal text-right text-gray-600">{{ product.sugars | round(1) }} g</p>
+                </div>
+                {% endif %}
+                
+                {% if product.fiber is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1">
+                    <p class="text-base font-normal text-gray-700 ml-2">Fiber</p>
+                    <p class="text-base font-semibold text-right text-gray-700">{{ product.fiber | round(1) }} g</p>
+                </div>
+                {% endif %}
+
+                {% if product.protein is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1">
+                    <p class="text-base font-normal text-gray-700 ml-2">Protein</p>
+                    <p class="text-base font-semibold text-right text-gray-700">{{ product.protein | round(1) }} g</p>
+                </div>
+                {% endif %}
+
+                {% if product.sodium is not none %}
+                <div class="flex justify-between border-b border-gray-200 py-1">
+                    <p class="text-base font-normal text-gray-700 ml-2">Sodium</p>
+                    <p class="text-base font-semibold text-right text-gray-700">{{ product.sodium | round(0) | int }} mg</p>
+                </div>
+                {% endif %}
+
+                {% if product.c_vitamin is not none %}
+                <div class="flex justify-between py-1">
+                    <p class="text-base font-normal text-gray-700 ml-2">Vitamin C</p>
+                    <p class="text-base font-semibold text-right text-gray-700">{{ product.c_vitamin | round(0) | int }} mg</p>
+                </div>
+                {% endif %}
+                
+                <!-- Footer Divider -->
+                <hr class="bg-gray-900 h-px mt-4 mb-2">
+
+                <!-- Nutritionally relevant details -->
+                <div class="text-sm text-gray-600 space-y-1">
+                    <p>Brand: <span class="font-bold">{{ product.brand_name }}</span></p>
+                    
+                    {% if product.nutr_score_fr %}
+                    <p>Nutri-Score: {{ product.nutr_score_fr }} <span class="bg-{{ product.nutri_color }}-600 font-bold text-white rounded-lg p-1 text-center">{{ product.nutri_letter }} </span></p>
+                    {% endif %}
+
+                    {% if product.price and product.currency_code %}
+                    <p>Latest Price: <span class="font-semibold">{{ product.currency_code }} {{ product.price | round(2) }}</span> ({{ product.price_date.year }}-{{ product.price_date.month }}-{{ product.price_date.day }})</p>
+                    {% endif %}
+
+                    {% if product.store_name %}
+                    <p>Last Seen At: <span class="font-semibold text-gray-800">{{ product.store_name }}</span></p>
+                    {% endif %}
+                    
+                    {% if product.ingredients_text %}
+                    <details class="pt-1">
+                        <summary class="cursor-pointer font-medium text-xs">Ingredients</summary>
+                        <p class="text-xs mt-1 italic max-h-16 overflow-y-auto">{{ product.ingredients_text }}</p>
+                    </details>
+                    {% endif %}
+                </div>
+            </div>
 
         {% endfor %}
     </div>
 
-    <!-- Previous button -->
+    <!-- Pagination -->
     {% if total_pages > 1 %}
-        <a href="?page={{ page - 1}}">← Previous</a>
-    {% else %}
-        ← Previous
-    {% endif %}
+        <div class="flex justify-center items-center space-x-2 my-8">
+            <!-- Previous Button -->
+            {% if page > 1 %}
+                <a href="?page={{ page - 1 }}" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
+                    ← Previous
+                </a>
+            {% else %}
+                <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
+                    ← Previous
+                </span>
+            {% endif %}
 
-    {% for page_num in range(1, total_pages + 1) %}
-        {% if page_num == page %}
-            {{ page_num }}
-        {% else %}
-            <a href="?page={{ page_num }}">
-                {{ page_num }}
-            </a>
-        {% endif %}
-    {% endfor %}
+            <!-- Page Numbers -->
+            {% for page_num in range(1, total_pages + 1) %}
+                {% if page_num == page %}
+                    <!-- Current page (highlighted) -->
+                    <span class="px-4 py-2 bg-brand-orange text-white rounded-lg font-bold shadow-md">
+                        {{ page_num }}
+                    </span>
+                {% else %}
+                    <!-- Other pages (clickable) -->
+                    <a href="?page={{ page_num }}" 
+                        class="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium transition shadow-sm hover:shadow-md">
+                        {{ page_num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
 
-    <!-- Next button -->
-    
-    {% if page < total_pages %}
-        <a href="?page={{ page + 1 }}">
-            Next →
-        </a>
-    {% else %}
-        Next →        
+            <!-- Next Button -->
+            {% if page < total_pages %}
+                <a href="?page={{ page + 1 }}" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
+                    Next →
+                </a>
+            {% else %}
+                <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
+                    Next →
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- Page Info -->
+        <p class="text-center text-gray-600 text-sm mb-8">
+            Page {{ page }} of {{ total_pages }}
+        </p>
     {% endif %}
         
-        
-
-
 {% endblock content %}
     
     
