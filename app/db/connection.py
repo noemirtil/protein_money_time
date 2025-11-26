@@ -123,7 +123,7 @@ def _handle_csv_import(cur, db, filename, table_name, columns):
             # FIX 2: Changed DELIMITER from ',' to ';' based on seed.sql requirement.
             copy_sql = f"COPY \"{table_name}\" ({', '.join(f'\"{col}\"' for col in columns)}) FROM STDIN WITH CSV HEADER DELIMITER ';'"
             
-            # Use copy_expert to feed the file contents directly to PostgreSQL
+            # Use copy_expert to feed the file contents directly to PostgreSQL instead of looping
             cur.copy_expert(copy_sql, f)
             
             # Commit the changes immediately after a large import
@@ -131,7 +131,7 @@ def _handle_csv_import(cur, db, filename, table_name, columns):
             print(f"   ✅ ¡Éxito! Copied {cur.rowcount} rows into {table_name}.")
 
     except FileNotFoundError:
-        print(f"   ❌ Error: CSV file not found at expected location for {filename}")
+        print(f" ❌ Error: CSV file not found at expected location for {filename}")
         db.rollback()
         raise
     except Exception as e:
@@ -140,7 +140,9 @@ def _handle_csv_import(cur, db, filename, table_name, columns):
         raise
     
 def seed_db():
-    """Seed database with seed.sql"""
+    """
+    Seed database with seed.sql
+    """
     
     db = get_db()
     
