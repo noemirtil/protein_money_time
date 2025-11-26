@@ -1,5 +1,5 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
 from flask import g, current_app
 from config import Config
 import click
@@ -10,11 +10,11 @@ import os
 def get_db():
     if 'db' not in g:
         try:
-            g.db = psycopg2.connect(
+            g.db = psycopg.connect(
                 Config.DATABASE_URL,
-                cursor_factory=RealDictCursor
+                row_factory=dict_row
             )
-        except psycopg2.Error as e:
+        except psycopg.Error as e:
             print(f"Falló la conexión a la base de datos: {e}")
             raise
     return g.db
@@ -118,17 +118,16 @@ def _handle_csv_import(cur, db, filename, table_name, columns):
         
         print(f"   Reading CSV from: {csv_path}")
         
-        # The file is opened in text mode 'r'
         with open(csv_path, 'r', encoding='utf-8') as f:
-            # FIX 2: Changed DELIMITER from ',' to ';' based on seed.sql requirement.
             copy_sql = f"COPY \"{table_name}\" ({', '.join(f'\"{col}\"' for col in columns)}) FROM STDIN WITH CSV HEADER DELIMITER ';'"
             
-            # Use copy_expert to feed the file contents directly to PostgreSQL instead of looping
-            cur.copy_expert(copy_sql, f)
+            # psycopg3 uses db.copy() not cur.copy()
+            with cur.copy(copy_sql) as copy_op:
+                data = f.read()
+                copy_op.write(data)
             
-            # Commit the changes immediately after a large import
             db.commit()
-            print(f"   ✅ ¡Éxito! Copied {cur.rowcount} rows into {table_name}.")
+            print(f"   ✅ ¡Éxito! Copied data into {table_name}.")
 
     except FileNotFoundError:
         print(f" ❌ Error: CSV file not found at expected location for {filename}")

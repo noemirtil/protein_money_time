@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 from config import Config
 from app.extensions import csrf, login_manager
 from .db.connection import get_db
