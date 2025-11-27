@@ -170,6 +170,11 @@
                 <p>© 2025 Protein Money Time - Noémie&Rossana</p>
             </div>
         </footer>
+		
+		<button id="scroll-up-button" 
+        class="bg-white shadow-lg fixed w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center opacity-0 bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 rounded-full border-2 border-gray-300 pointer-events-none transition-opacity duration-300 hover:bg-gray-100 hover:scale-110 text-lg sm:text-xl">
+			↑
+		</button>
 
         <!-- Mobile Menu Toggle Script -->
         <script>
@@ -177,12 +182,27 @@
             const mobileMenu = document.getElementById('mobile-menu');
             const menuIcon = document.getElementById('menu-icon');
             const closeIcon = document.getElementById('close-icon');
+			const scrollUpButton = document.getElementById('scroll-up-button');
 
             mobileMenuButton.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
                 menuIcon.classList.toggle('hidden');
                 closeIcon.classList.toggle('hidden');
             });
+			window.addEventListener('scroll', () =>  {
+				let scrollPosition = window.scrollY;
+				
+				if (scrollPosition > 300) {
+					scrollUpButton.classList.add('opacity-100');
+					scrollUpButton.classList.remove('pointer-events-none');
+				} else {
+					scrollUpButton.classList.remove('opacity-100');
+					scrollUpButton.classList.add('pointer-events-none');
+				}
+			});
+			scrollUpButton.addEventListener('click', () =>  {
+				window.scrollTo({ top: 0, behavior: 'smooth' });	
+			});
         </script>
     </body>
 </html>
