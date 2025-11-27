@@ -9,6 +9,19 @@
     {% if current_user.is_authenticated %}
         <p>Hello, {{ current_user.username }}</p>
     {% endif %}
+	
+	<div class="max-w-7xl mx-auto px-4 py-4">
+    <input 
+        type="text" 
+        id="search-input"
+        placeholder="Search products, brands, or stores..."
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent"
+    >
+	</div>
+
+	<!-- Search results container (hidden by default) -->
+	<div id="search-results" class="hidden max-w-7xl mx-auto px-4"></div>
+	
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         {% for product in products %}
             <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
@@ -127,55 +140,56 @@
     </div>
 
     <!-- Pagination -->
-    {% if total_pages > 1 %}
-        <div class="flex justify-center items-center space-x-2 my-8">
-            <!-- Previous Button -->
-            {% if page > 1 %}
-                <a href="?page={{ page - 1 }}" 
-                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
-                    ← Previous
-                </a>
-            {% else %}
-                <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
-                    ← Previous
-                </span>
-            {% endif %}
-
-            <!-- Page Numbers -->
-            {% for page_num in range(1, total_pages + 1) %}
-                {% if page_num == page %}
-                    <!-- Current page (highlighted) -->
-                    <span class="px-4 py-2 bg-brand-orange text-white rounded-lg font-bold shadow-md">
-                        {{ page_num }}
-                    </span>
-                {% else %}
-                    <!-- Other pages (clickable) -->
-                    <a href="?page={{ page_num }}" 
-                        class="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium transition shadow-sm hover:shadow-md">
-                        {{ page_num }}
-                    </a>
-                {% endif %}
-            {% endfor %}
-
-            <!-- Next Button -->
-            {% if page < total_pages %}
-                <a href="?page={{ page + 1 }}" 
-                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
-                    Next →
-                </a>
-            {% else %}
-                <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
-                    Next →
-                </span>
-            {% endif %}
-        </div>
-
-        <!-- Page Info -->
-        <p class="text-center text-gray-600 text-sm mb-8">
-            Page {{ page }} of {{ total_pages }}
-        </p>
-    {% endif %}
-        
+	<div class="pagination">
+		{% if total_pages > 1 %}
+			<div class="flex justify-center items-center space-x-2 my-8">
+				<!-- Previous Button -->
+				{% if page > 1 %}
+					<a href="?page={{ page - 1 }}" 
+					   class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
+						← Previous
+					</a>
+				{% else %}
+					<span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
+						← Previous
+					</span>
+				{% endif %}
+				
+				<!-- Page Numbers -->
+				{% for page_num in range(1, total_pages + 1) %}
+					{% if page_num == page %}
+						<span class="px-4 py-2 bg-brand-orange text-white rounded-lg font-bold shadow-md">
+							{{ page_num }}
+						</span>
+					{% else %}
+						<a href="?page={{ page_num }}" 
+						   class="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium transition shadow-sm hover:shadow-md">
+							{{ page_num }}
+						</a>
+					{% endif %}
+				{% endfor %}
+				
+				<!-- Next Button -->
+				{% if page < total_pages %}
+					<a href="?page={{ page + 1 }}" 
+					   class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
+						Next →
+					</a>
+				{% else %}
+					<span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
+						Next →
+					</span>
+				{% endif %}
+			</div>
+			
+			<!-- Page Info -->
+			<p class="text-center text-gray-600 text-sm mb-8">
+				Page {{ page }} of {{ total_pages }}
+			</p>
+		{% endif %}  <!-- ✅ Close the if statement -->
+	</div>
+		
+	<script src="{{ url_for('static', filename='js/api-search.js') }}"></script>
 {% endblock content %}
     
     
