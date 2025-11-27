@@ -154,7 +154,12 @@ def _handle_csv_import(cur, db, filename, table_name, columns):
         print(f"   Reading CSV from: {csv_path}")
 
         with open(csv_path, "r", encoding="utf-8") as f:
-            copy_sql = f"COPY \"{table_name}\" ({', '.join(f'\"{col}\"' for col in columns)}) FROM STDIN WITH CSV HEADER DELIMITER ';'"
+            # copy_sql = f"COPY \"{table_name}\" ({', '.join(f'\"{col}\"' for col in columns)}) FROM STDIN WITH CSV HEADER DELIMITER ';'"
+            # in an f-string, you cannot use a backslash (\) followed by a double quote (") as you would in a regular string.
+            copy_sql = (
+                f'COPY "{table_name}" ({", ".join(f"{col}" for col in columns)}) FROM STDIN WITH CSV HEADER DELIMITER '
+                ';"'
+            )
 
             # psycopg3 uses db.copy() not cur.copy()
             with cur.copy(copy_sql) as copy_op:
