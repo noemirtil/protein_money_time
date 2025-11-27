@@ -34,6 +34,7 @@ def _assign_nutriscore_data(score):
 
 
 @main_bp.route("/")
+@main_bp.route("/index")
 def index():
     db = get_db()
     cur = db.cursor()
@@ -57,7 +58,6 @@ def index():
             get_protein_score(),
             (per_page, offset),
         )
-
     products = cur.fetchall()
 
     processed_products = []
