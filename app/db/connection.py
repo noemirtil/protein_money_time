@@ -28,8 +28,8 @@ def get_database_url():
 
     # Build connection string based on environment
     if instance:
-        # Cloud Run/App Engine: Unix socket
-        return f"postgresql://{user}:{encoded_password}@/{database}?host=/{host}/{instance}"
+        # Cloud Run: Unix socket
+        return f"postgresql://{user}:{encoded_password}@/{database}?host=/cloudsql/{instance}"
     else:
         # Neon connection - use Config.DATABASE_URL if available
         if hasattr(Config, "DATABASE_URL") and Config.DATABASE_URL:
