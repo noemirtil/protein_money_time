@@ -317,8 +317,38 @@ __marimo__/
 *.sln
 *.suo
 
+# ------------------------------------
+# Azure Specific Files and Directories
+# ------------------------------------
 
-# Visual Studio / Visual Studio Code
-.vs/
-*.sln
-*.suo
+# Azure CLI/SDK Cache and Credentials
+# Credentials cache (if using Azure CLI's automatic token storage)
+.azure/
+# Azure Function app secrets (Local Settings)
+local.settings.json
+# Azure Durable Functions history (local)
+DurableTaskHub.json
+
+# Azure Resource Manager (ARM) and Bicep deployment output
+# Output files from ARM/Bicep deployments
+*.json.deploy
+*.parameters.json.deploy
+*.bicepparam.deploy
+
+# Azure Machine Learning (AML)
+# Workspace configuration files for AML (often generated locally)
+.aml/
+
+# Azure IoT and Edge
+# Module configuration secrets (if using IoT Edge)
+config/
+# Local IoT Edge deployment data
+deployment.*.json
+
+# Azure Pipelines/DevOps (often used in project root)
+# Cache for build artifacts
+.pipelines.cache/
+
+# Azure Functions/WebJobs (General)
+# Local host config for Functions/WebJobs runtime
+host.json

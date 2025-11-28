@@ -9,6 +9,15 @@ App name
     {% if current_user.is_authenticated %}
         <p>Hello, {{ current_user.username }}</p>
     {% endif %}
+
+    <form action="/" method="get">
+        <input name="query" type="hidden" value="get_protein_score()">
+        <button type="submit">By Protein Score</button>
+    </form>
+    <form action="/" method="get">
+        <input name="query" type="hidden" value="get_c_vitamin_score()">
+        <button type="submit">By Vitamin Score</button>
+    </form>
 	
 	<div class="max-w-7xl mx-auto px-4 py-4">
     <input 
