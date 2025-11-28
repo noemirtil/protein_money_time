@@ -125,7 +125,7 @@ def index():
     cur = db.cursor()
     
     page = request.args.get('page', 1, type=int)
-    per_page = 18
+    per_page = 12
     offset = (page - 1) * per_page
     
     products = _get_products(cur, per_page, offset)
@@ -138,7 +138,9 @@ def index():
     return render_template('main/index.html',
                         products=processed_products,
                         page=page,
-                        total_pages=total_pages)
+                        total_pages=total_pages,
+                        max=max,
+                        min=min)
 
                         
 @main_bp.route('/api/search')
