@@ -139,55 +139,75 @@
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
-	<div class="pagination">
-		{% if total_pages > 1 %}
-			<div class="flex justify-center items-center space-x-2 my-8">
-				<!-- Previous Button -->
-				{% if page > 1 %}
-					<a href="?page={{ page - 1 }}" 
-					   class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
-						← Previous
-					</a>
-				{% else %}
-					<span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
-						← Previous
-					</span>
-				{% endif %}
-				
-				<!-- Page Numbers -->
-				{% for page_num in range(1, total_pages + 1) %}
-					{% if page_num == page %}
-						<span class="px-4 py-2 bg-brand-orange text-white rounded-lg font-bold shadow-md">
-							{{ page_num }}
-						</span>
-					{% else %}
-						<a href="?page={{ page_num }}" 
-						   class="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium transition shadow-sm hover:shadow-md">
-							{{ page_num }}
-						</a>
-					{% endif %}
-				{% endfor %}
-				
-				<!-- Next Button -->
-				{% if page < total_pages %}
-					<a href="?page={{ page + 1 }}" 
-					   class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
-						Next →
-					</a>
-				{% else %}
-					<span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
-						Next →
-					</span>
-				{% endif %}
-			</div>
-			
-			<!-- Page Info -->
-			<p class="text-center text-gray-600 text-sm mb-8">
-				Page {{ page }} of {{ total_pages }}
-			</p>
-		{% endif %}  <!-- ✅ Close the if statement -->
-	</div>
+    <div class="pagination">
+        {% if total_pages > 1 %}
+            <div class="flex justify-center items-center space-x-2 my-8">
+
+                {% set MAX_BUTTONS = 6 %}
+                
+                {% set start_page = 1 %}
+                {% set end_page = total_pages %}
+
+                {% if total_pages > MAX_BUTTONS %}
+                    {% set start_page = max(1, page - MAX_BUTTONS // 2) %}
+                    
+                    {% set start_page = max(1, min(start_page, total_pages - MAX_BUTTONS + 1)) %}
+                    
+                    {% set end_page = min(total_pages, start_page + MAX_BUTTONS - 1) %}
+                {% else %}
+                    {% set start_page = 1 %}
+                    {% set end_page = total_pages %}
+                {% endif %}
+
+                {% if page > 1 %}
+                    <a href="?page={{ page - 1 }}" 
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
+                        ← <span class="hidden sm:inline">Previous</span>
+                    </a>
+                {% else %}
+                    <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
+                        ← <span class="hidden sm:inline">Previous</span>
+                    </span>
+                {% endif %}
+                
+                {% if start_page > 1 %}
+                    <span class="px-3 py-2 text-gray-500 cursor-default hidden sm:block">...</span>
+                {% endif %}
+
+                {% for page_num in range(start_page, end_page + 1) %}
+                    {% if page_num == page %}
+                        <span class="px-4 py-2 bg-brand-orange text-white rounded-lg font-bold shadow-md">
+                            {{ page_num }}
+                        </span>
+                    {% else %}
+                        <a href="?page={{ page_num }}" 
+                        class="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium transition shadow-sm hover:shadow-md">
+                            {{ page_num }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if end_page < total_pages %}
+                    <span class="px-3 py-2 text-gray-500 cursor-default hidden sm:block">...</span>
+                {% endif %}
+                
+                {% if page < total_pages %}
+                    <a href="?page={{ page + 1 }}" 
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
+                        <span class="hidden sm:inline">Next</span> →
+                    </a>
+                {% else %}
+                    <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
+                        <span class="hidden sm:inline">Next</span> →
+                    </span>
+                {% endif %}
+            </div>
+            
+            <p class="text-center text-gray-600 text-sm mb-8">
+                Page {{ page }} of {{ total_pages }}
+            </p>
+        {% endif %}
+    </div>
 		
 	<script src="{{ url_for('static', filename='js/api-search.js') }}"></script>
 {% endblock content %}
