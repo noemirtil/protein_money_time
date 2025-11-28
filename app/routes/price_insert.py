@@ -2,11 +2,11 @@ from flask import Blueprint, render_template, request
 from flask_login import login_required, current_user
 from app.db.connection import get_db
 
-product_insert_bp = Blueprint("product_insert", __name__)
+price_insert_bp = Blueprint("price_insert", __name__)
 
 
-@product_insert_bp.route("/product_insert", methods=("GET", "POST"))
-def product_insert():
+@price_insert_bp.route("/price_insert", methods=("GET", "POST"))
+def price_insert():
     db = get_db()
     cur = db.cursor()
     products = cur.execute(get_products()).fetchall()
