@@ -14,93 +14,67 @@ App name
     <!-- <h2 class="mensaje">{{ mensaje }}</h2> -->
     <label for="product_name">Product name: *</label>
     <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="brand_name">Brand name: </label>
+    <input autocomplete="off" type="text" id="brand_name" name="brand_name"><br><br>
     <label for="product_url">Product link: *</label>
     <input autocomplete="off" type="text" id="product_name" name="product_name" value="https://www.google.com/"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <label for="product_name">Product name: *</label>
-    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-    <input type="submit" value="Enviar Solicitud">
+    <label for="product_ingredients">Ingredients list: *</label>
+    <input autocomplete="off" type="text" id="product_ingredients" name="product_ingredients"><br><br>
+    <label for="product_energy">Energy per 100g in kJ: *</label>
+    <input autocomplete="off" type="text" id="product_energy" name="product_energy"><br><br>
+    <label for="product_protein">Protein per 100g: *</label>
+    <input autocomplete="off" type="text" id="product_protein" name="product_protein"><br><br>
+    <label for="product_fat">Fat per 100g: *</label>
+    <input autocomplete="off" type="text" id="product_fat" name="product_fat"><br><br>
+    <label for="product_sat_fat">Saturated fat per 100g:</label>
+    <input autocomplete="off" type="text" id="product_sat_fat" name="product_sat_fat"><br><br>
+    <label for="product_carbs">Carbohydrates per 100g: *</label>
+    <input autocomplete="off" type="text" id="product_carbs" name="product_carbs"><br><br>
+    <label for="product_sugars">Sugars per 100g:</label>
+    <input autocomplete="off" type="text" id="product_sugars" name="product_sugars"><br><br>
+    <label for="product_fiber">Fiber per 100g:</label>
+    <input autocomplete="off" type="text" id="product_fiber" name="product_fiber"><br><br>
+    <label for="product_sodium">Sodium per 100g:</label>
+    <input autocomplete="off" type="text" id="product_sodium" name="product_sodium"><br><br>
+    <label for="product_c_vitamin">C Vitamin per 100g:</label>
+    <input autocomplete="off" type="text" id="product_c_vitamin" name="product_c_vitamin"><br><br>
+    <input type="submit" value="SAVE THIS NEW PRODUCT">
 </form>
+<br><br><br><br>
 
 
 
-"brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
-"ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
-"energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
-"fat" REAL NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
-"sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
-"carbs" REAL NOT NULL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
-"sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
-"fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
-"protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
-"sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
-"c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
-"nutr_score_fr" SMALLINT CHECK ("nutr_score_fr" BETWEEN -20 AND 50),
+<h2>Modify product</h2>
+<table>
+    <tr>
+        <th>Product name</th>
+        <th>Brand name</th>
+        <th>Modify</th>
+        <th>Delete</th>
+    </tr>
+    {% if id_edit %}
+    <tr class="edit_row">{% block edit %}{% endblock %}</tr>
+    {% endif %}
+    {% for product in products %}
+    <tr>
+        <td><a href='{{ product["url"] }}'>{{ product["name"] }}</a></td>
+        <td>{{ product["brand_name"] }}</td>
+        <td>
+            <form action="/edit" method="post">
+                <input name="edit" type="hidden" value="{{ product['id'] }}">
+                <button class="icons" type="submit">✏️</button>
+            </form>
+        </td>
+        <td>
+            <form action="/delete" method="post">
+                <input name="delete" type="hidden" value="{{ product['id'] }}">
+                <button class="icons" type="submit">❌</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 
-
-
-
-<div class="database">
-    <h2 class="title">📋 Solicitudes Registradas</h2>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Perro preferido</th>
-            <th>Editar</th>
-            <th>Eliminar</th>
-        </tr>
-        {% if id_editar %}
-        <tr class="edit_row">{% block editar %}{% endblock %}</tr>
-        {% endif %}
-        {% for resultado in resultados %}
-        <tr>
-            <td>{{ resultado["id"] }}</td>
-            <td>{{ resultado["nombre"] }}</td>
-            <td>{{ resultado["email"] }}</td>
-            <td>{{ resultado["telefono"] }}</td>
-            <td>{{ resultado["direccion"] }}</td>
-            <td>{{ resultado["preferido"] }}</td>
-            <td>
-                <form action="/editar" method="post">
-                    <input name="editar" type="hidden" value="{{ resultado['id'] }}">
-                    <button class="icons" type="submit">✏️</button>
-                </form>
-            </td>
-            <td>
-                <form action="/eliminar" method="post">
-                    <input name="eliminar" type="hidden" value="{{ resultado['id'] }}">
-                    <button class="icons" type="submit">❌</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
 
 
 

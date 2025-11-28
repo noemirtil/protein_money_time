@@ -18,6 +18,7 @@ def get_products():
     query = """
     SELECT
         products.id,
+        products.url,
         products.name,
         products.energy,
         products.fat,
@@ -44,27 +45,6 @@ def get_products():
     LEFT JOIN stores ON prices.store_id = stores.id
     LEFT JOIN countries ON stores.country_id = countries.id
     LEFT JOIN currencies ON prices.currency_id = currencies.id
-    GROUP BY
-        products.id,
-        products.name,
-        products.energy,
-        products.fat,
-        products.sat_fat,
-        products.sodium,
-        products.carbs,
-        products.fiber,
-        products.sugars,
-        products.protein,
-        products.c_vitamin,
-        products.nutr_score_fr,
-        products.ingredients_text,
-        brands."name",
-        prices.price,
-        prices.weight,
-        prices."date",
-        stores."name",
-        countries.country,
-        currencies.currency_code
     ORDER BY products.name
         """
     return query
