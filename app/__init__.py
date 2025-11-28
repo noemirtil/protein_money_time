@@ -1,19 +1,25 @@
 from flask import Flask
-from config import Config
-from app.extensions import csrf, login_manager
+from dotenv import load_dotenv
 from .db.connection import get_db
+import os
 
-def create_app(config_class=Config):
+load_dotenv() 
+
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    
+    app.config.from_mapping(
+        SECRET_KEY=os.getenv('SECRET_KEY', 'dev-secret-key'),
+        WTF_CSRF_ENABLED=True,
+    )
     
     #Initialize extensions
+    from .extensions import csrf, login_manager
     csrf.init_app(app)
     login_manager.init_app(app)
     
-    # Inicia base de datos con comands CLI
-    #flask init-db
-    from app.db import connection
+    # --- Register Database Teardown ---
+    from .db import connection
     connection.init_app(app)
     
     from app.models.user import User    
@@ -27,9 +33,11 @@ def create_app(config_class=Config):
         return None
     
     #Register blueprints
-    from app.routes.auth import auth_bp
-    from app.routes.main import main_bp
+    from .routes.auth import auth_bp
+    from .routes.main import main_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
+    
+    app.add_url_rule("/", endpoint="index")
     
     return app
