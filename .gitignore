@@ -6,7 +6,6 @@
 *.xls
 database.ini
 not_yet.sql
-azd_debugging.txt
 
 
 # Flask #
