@@ -9,14 +9,6 @@ App name
 {% if current_user.is_authenticated %}
 <p>Hello, {{ current_user.username }}</p>
 {% endif %}
-<form action="/" method="get">
-    <input name="query" type="hidden" value="get_protein_score()">
-    <button type="submit">By Protein Score</button>
-</form>
-<form action="/" method="get">
-    <input name="query" type="hidden" value="get_c_vitamin_score()">
-    <button type="submit">By Vitamin Score</button>
-</form>
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
     {% for product in products %}
     <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
@@ -138,54 +130,5 @@ App name
 
     {% endfor %}
 </div>
-
-<!-- Pagination -->
-{% if total_pages > 1 %}
-<div class="flex justify-center items-center space-x-2 my-8">
-    <!-- Previous Button -->
-    {% if page > 1 %}
-    <a href="?page={{ page - 1 }}"
-        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
-        ← Previous
-    </a>
-    {% else %}
-    <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
-        ← Previous
-    </span>
-    {% endif %}
-
-    <!-- Page Numbers -->
-    {% for page_num in range(1, total_pages + 1) %}
-    {% if page_num == page %}
-    <!-- Current page (highlighted) -->
-    <span class="px-4 py-2 bg-brand-orange text-white rounded-lg font-bold shadow-md">
-        {{ page_num }}
-    </span>
-    {% else %}
-    <!-- Other pages (clickable) -->
-    <a href="?page={{ page_num }}"
-        class="px-4 py-2 bg-white hover:bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium transition shadow-sm hover:shadow-md">
-        {{ page_num }}
-    </a>
-    {% endif %}
-    {% endfor %}
-
-    <!-- Next Button -->
-    {% if page < total_pages %} <a href="?page={{ page + 1 }}"
-        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-gray-700 font-medium transition">
-        Next →
-        </a>
-        {% else %}
-        <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 cursor-not-allowed">
-            Next →
-        </span>
-        {% endif %}
-</div>
-
-<!-- Page Info -->
-<p class="text-center text-gray-600 text-sm mb-8">
-    Page {{ page }} of {{ total_pages }}
-</p>
-{% endif %}
 
 {% endblock content %}
