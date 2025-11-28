@@ -9,6 +9,102 @@ App name
 {% if current_user.is_authenticated %}
 <p>Hello, {{ current_user.username }}</p>
 {% endif %}
+
+<form class="product_insert" method="post" action="/product_insert">
+    <!-- <h2 class="mensaje">{{ mensaje }}</h2> -->
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_url">Product link: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name" value="https://www.google.com/"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <label for="product_name">Product name: *</label>
+    <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+    <input type="submit" value="Enviar Solicitud">
+</form>
+
+
+
+"brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
+"ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
+"energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
+"fat" REAL NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
+"sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
+"carbs" REAL NOT NULL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
+"sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
+"fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
+"protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
+"sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
+"c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
+"nutr_score_fr" SMALLINT CHECK ("nutr_score_fr" BETWEEN -20 AND 50),
+
+
+
+
+<div class="database">
+    <h2 class="title">📋 Solicitudes Registradas</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Perro preferido</th>
+            <th>Editar</th>
+            <th>Eliminar</th>
+        </tr>
+        {% if id_editar %}
+        <tr class="edit_row">{% block editar %}{% endblock %}</tr>
+        {% endif %}
+        {% for resultado in resultados %}
+        <tr>
+            <td>{{ resultado["id"] }}</td>
+            <td>{{ resultado["nombre"] }}</td>
+            <td>{{ resultado["email"] }}</td>
+            <td>{{ resultado["telefono"] }}</td>
+            <td>{{ resultado["direccion"] }}</td>
+            <td>{{ resultado["preferido"] }}</td>
+            <td>
+                <form action="/editar" method="post">
+                    <input name="editar" type="hidden" value="{{ resultado['id'] }}">
+                    <button class="icons" type="submit">✏️</button>
+                </form>
+            </td>
+            <td>
+                <form action="/eliminar" method="post">
+                    <input name="eliminar" type="hidden" value="{{ resultado['id'] }}">
+                    <button class="icons" type="submit">❌</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+
+
+
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
     {% for product in products %}
     <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">

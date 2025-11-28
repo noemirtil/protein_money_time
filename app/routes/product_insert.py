@@ -5,7 +5,7 @@ from app.db.connection import get_db
 product_insert_bp = Blueprint("product_insert", __name__)
 
 
-@product_insert_bp.route("/product_insert")
+@product_insert_bp.route("/product_insert", methods=("GET", "POST"))
 def product_insert():
     db = get_db()
     cur = db.cursor()

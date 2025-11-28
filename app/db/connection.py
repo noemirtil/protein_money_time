@@ -100,50 +100,6 @@ def split_sql_commands(sql):
     return commands
 
 
-def init_db():
-    """Initialize database with schema.sql"""
-
-    db = get_db()
-
-    try:
-        print(f"📂 Looking for schema at: {Config.SCHEMA_PATH}")
-
-        # Open resource relative to app folder
-        with current_app.open_resource(Config.SCHEMA_PATH) as f:
-            sql_script = f.read().decode("utf-8")
-
-        print(f"📄 Schema file read ({len(sql_script)} chars)")
-
-        # Use smart splitting that handles $$
-        commands = split_sql_commands(sql_script)
-
-        with db.cursor() as cur:
-            for i, command in enumerate(commands, 1):
-                print(f"\n⚙️  Ejecutando comando {i}:")
-                preview = command[:80].replace("\n", " ")
-                print(f"{preview}...")
-
-                try:
-                    cur.execute(command)
-                    print(f"✅ ¡Éxito!")
-                except Exception as e:
-                    print(f"❌ Error: {e}")
-                    print(f"Comando completo:\n{command}")
-                    db.rollback()
-                    raise
-
-        db.commit()
-        print("\n🎉 ¡Base de datos iniciada con éxito!")
-
-    except FileNotFoundError:
-        print(f"❌ Error: schema.sql no encontrado en {Config.SCHEMA_PATH}")
-        return
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        db.rollback()
-        raise
-
-
 def _handle_csv_import(cur, db, filename, table_name, columns):
     """
     Reads a CSV file and uses psycopg2's copy_expert to insert data into a table.
@@ -254,13 +210,6 @@ def seed_db():
         raise
 
 
-@click.command("init-db")
-def init_db_command():
-    """Reinicia la base de datos"""
-    init_db()
-    click.echo("✅ Se inició la base de datos.")
-
-
 @click.command("seed-db")
 @with_appcontext
 def seed_db_command():
@@ -272,5 +221,4 @@ def seed_db_command():
 def init_app(app):
     """Registra la base de datos en la app de Flask"""
     app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
     app.cli.add_command(seed_db_command)

@@ -50,7 +50,7 @@ EXECUTE FUNCTION discontinue_product();
 CREATE TABLE "products" (
     "id" SERIAL PRIMARY KEY,
     "off_code" BIGINT UNIQUE, -- Open Food Facts database code
-    "url" VARCHAR(2048) NOT NULL UNIQUE,
+    "url" VARCHAR(2048) NOT NULL,
     "name" VARCHAR(320) NOT NULL,
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
     "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
