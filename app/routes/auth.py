@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, url_for, redirect, flash, request, jsonify
 from app.db.connection import get_db
-from config import Config
 from app.forms.auth_forms import RegistrationForm, LoginForm
 from werkzeug.security import generate_password_hash
 from app.models.user import User
