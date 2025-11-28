@@ -4,7 +4,8 @@
 *.jsonl
 *.json
 *.xls
-
+database.ini
+not_yet.sql
 
 
 # Flask #
@@ -309,3 +310,4 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+.azure
