@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app.db.connection import get_db
 
@@ -6,10 +6,47 @@ inserts_bp = Blueprint("inserts", __name__)
 
 
 @inserts_bp.route("/inserts", methods=("GET", "POST"))
+# @login_required
 def inserts():
+    username = request.args.get("username", "").strip().lower()
+
     db = get_db()
     cur = db.cursor()
+
+    user_id = cur.execute(
+        "SELECT id FROM users WHERE username=%s", (username,)
+    ).fetchone()
+    author_id = user_id["id"] if user_id else None
+    if author_id is None:
+        flash("User not found.")
+        return redirect(url_for("auth.login"))
+
     products = cur.execute(get_products()).fetchall()
+
+    if request.method == "POST":
+        product_name = request.form["product_name"]
+        brand_name = request.form["brand_name"]
+        message = None
+
+        if not product_name:
+            message = "Product name is required."
+
+        if not brand_name:
+            message = "Brand name is required."
+
+        if message is not None:
+            flash(message)
+
+        else:
+            db.execute(
+                "INSERT INTO incomplete_products (author_id, product_name, brand_name) VALUES (%s, %s, %s)",
+                (author_id, product_name, brand_name),
+            )
+            db.commit()
+            message = "Product registered successfully!"
+            flash(message)
+
+            return redirect(url_for("inserts.inserts"))
 
     return render_template("main/inserts.html", products=products)
 

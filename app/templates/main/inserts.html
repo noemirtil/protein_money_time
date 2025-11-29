@@ -12,7 +12,7 @@ App name
 
 <div class="space-between">
     {% block product_insert %}
-    <form class="width-50" method="post" action="/product_insert">
+    <form class="width-50" method="post" action="/inserts">
         <label for="product_name">Product name: *</label>
         <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
         <label for="brand_name">Brand name: *</label>
@@ -41,6 +41,7 @@ App name
         <input autocomplete="off" type="text" id="product_sodium" name="product_sodium"><br><br>
         <label for="product_c_vitamin">C Vitamin per 100g:</label>
         <input autocomplete="off" type="text" id="product_c_vitamin" name="product_c_vitamin"><br><br>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="submit" value="SAVE THIS NEW PRODUCT"
             class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
     </form>
