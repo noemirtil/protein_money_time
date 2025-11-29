@@ -53,17 +53,18 @@ CREATE TABLE "products" (
     "url" VARCHAR(2048) NOT NULL,
     "name" VARCHAR(320) NOT NULL,
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
-    "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
     "energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
+    "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "fat" REAL NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
     "sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
     "carbs" REAL NOT NULL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
     "sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
     "fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
-    "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
     "c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
     "nutr_score_fr" SMALLINT CHECK ("nutr_score_fr" BETWEEN -20 AND 50), -- https://en.wikipedia.org/wiki/Nutri-Score
+    "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "discontinued" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -95,6 +96,7 @@ CREATE TABLE "stores" (
     -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
     "country_id" INT REFERENCES "countries", -- can be null for online stores
     "website" VARCHAR(2048) UNIQUE, -- can be null for physical stores
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -107,11 +109,61 @@ CREATE TABLE "prices" (
     "date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "price" SMALLINT NOT NULL CHECK ("price" >= 0), -- in cents per packaging
     "weight" INT CHECK ("weight" >= 0), -- packaging size in grams
+    -- Weight OR quantity
     "quantity" INT CHECK ("quantity" >= 0), -- packaging size in units
     -- "product_pic_file" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
     -- "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
     "currency_id" SMALLINT NOT NULL REFERENCES "currencies",
-    "author_id" INT NOT NULL REFERENCES "users", -- user who uploaded the data
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "comment" VARCHAR(2048),
     "deleted" BOOLEAN NOT NULL DEFAULT 'false'
 );
+
+-- incomplete_products
+CREATE TABLE "incomplete_products" (
+    "id" SERIAL PRIMARY KEY,
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
+    "product_url" UNIQUE VARCHAR(2048),
+    "product_name" NOT NULL UNIQUE VARCHAR(320),
+    "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
+    "brand_name" VARCHAR(64),
+    "brand_website" VARCHAR(2048),
+    "product_energy" SMALLINT CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
+    "product_protein" REAL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
+    "product_fat" REAL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
+    "product_sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
+    "product_carbs" REAL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
+    "product_sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
+    "product_fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
+    "product_sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
+    "product_c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
+    "product_ingredients" TEXT, -- can be only one ingredient if it is a simple ingredient
+    "completed" BOOLEAN NOT NULL DEFAULT 'false'
+);
+
+-- incomplete_prices
+CREATE TABLE "incomplete_prices" (
+    "id" SERIAL PRIMARY KEY,
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
+    "product_id" INT NOT NULL REFERENCES "products",
+    -- WARNING references an incomplete product or a complete product!!! ???????
+    "store_id" INT REFERENCES "stores",
+    -- WARNING references an incomplete store or a complete store!!! ???????
+    "store_name" VARCHAR(64) NOT NULL,
+    "store_website" VARCHAR(2048),
+    "store_address" VARCHAR(2048),
+    -- "long_lat" geography(point), -- longitude first then latitude, example: 'POINT(-118.4079 33.9434)'
+    -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
+    "country_id" INT REFERENCES "countries",
+    "price_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "product_price" SMALLINT NOT NULL CHECK ("price" >= 0), -- in cents per packaging
+    "product_weight" INT CHECK ("weight" >= 0), -- packaging size in grams
+    -- Weight OR quantity
+    "product_quantity" INT CHECK ("quantity" >= 0), -- packaging size in units
+    -- "product_pic_file" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
+    -- "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
+    "currency_id" SMALLINT NOT NULL REFERENCES "currencies",
+    "comment" VARCHAR(2048),
+    "completed" BOOLEAN NOT NULL DEFAULT 'false'
+);
+
