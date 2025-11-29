@@ -11,7 +11,7 @@ def price_insert():
     cur = db.cursor()
     products = cur.execute(get_products()).fetchall()
 
-    return render_template("product_insert/product_insert.html", products=products)
+    return render_template("inserts/price_insert.html", products=products)
 
 
 def get_products():
