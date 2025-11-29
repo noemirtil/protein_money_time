@@ -123,20 +123,20 @@ CREATE TABLE "prices" (
 CREATE TABLE "incomplete_products" (
     "id" SERIAL PRIMARY KEY,
     "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
-    "product_url" UNIQUE VARCHAR(2048),
-    "product_name" NOT NULL UNIQUE VARCHAR(320),
+    "product_url" VARCHAR(2048) UNIQUE,
+    "product_name" VARCHAR(320) NOT NULL UNIQUE,
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
     "brand_name" VARCHAR(64),
     "brand_website" VARCHAR(2048),
-    "product_energy" SMALLINT CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
-    "product_protein" REAL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
-    "product_fat" REAL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
-    "product_sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
-    "product_carbs" REAL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
-    "product_sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
-    "product_fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
-    "product_sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
-    "product_c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
+    "product_energy" SMALLINT CHECK ("product_energy" BETWEEN 0 AND 5000), -- for 100g
+    "product_protein" REAL CHECK ("product_protein" BETWEEN 0 AND 100), -- for 100g
+    "product_fat" REAL CHECK ("product_fat" BETWEEN 0 AND 100), -- for 100g
+    "product_sat_fat" REAL CHECK ("product_sat_fat" BETWEEN 0 AND 100), -- for 100g
+    "product_carbs" REAL CHECK ("product_carbs" BETWEEN 0 AND 100), -- for 100g
+    "product_sugars" REAL CHECK ("product_sugars" BETWEEN 0 AND 100), -- for 100g
+    "product_fiber" REAL CHECK ("product_fiber" BETWEEN 0 AND 100), -- for 100g
+    "product_sodium" REAL CHECK ("product_sodium" BETWEEN 0 AND 100), -- for 100g
+    "product_c_vitamin" REAL CHECK ("product_c_vitamin" BETWEEN 0 AND 100), -- for 100g
     "product_ingredients" TEXT, -- can be only one ingredient if it is a simple ingredient
     "completed" BOOLEAN NOT NULL DEFAULT 'false'
 );
@@ -156,10 +156,10 @@ CREATE TABLE "incomplete_prices" (
     -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
     "country_id" INT REFERENCES "countries",
     "price_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "product_price" SMALLINT NOT NULL CHECK ("price" >= 0), -- in cents per packaging
-    "product_weight" INT CHECK ("weight" >= 0), -- packaging size in grams
+    "product_price" SMALLINT NOT NULL CHECK ("product_price" >= 0), -- in cents per packaging
+    "product_weight" INT CHECK ("product_weight" >= 0), -- packaging size in grams
     -- Weight OR quantity
-    "product_quantity" INT CHECK ("quantity" >= 0), -- packaging size in units
+    "product_quantity" INT CHECK ("product_quantity" >= 0), -- packaging size in units
     -- "product_pic_file" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
     -- "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
     "currency_id" SMALLINT NOT NULL REFERENCES "currencies",
