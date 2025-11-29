@@ -13,7 +13,6 @@ App name
 <div class="space-between">
     {% block product_insert %}
     <form class="width-50" method="post" action="/product_insert">
-        <!-- <h2 class="mensaje">{{ mensaje }}</h2> -->
         <label for="product_name">Product name: *</label>
         <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
         <label for="brand_name">Brand name: *</label>
@@ -21,8 +20,7 @@ App name
         <label for="brand_website">Brand website: *</label>
         <input autocomplete="off" type="text" id="brand_website" name="brand_website"><br><br>
         <label for="product_url">Product link: *</label>
-        <input autocomplete="off" type="text" id="product_name" name="product_name"
-            value="https://www.google.com/"><br><br>
+        <input autocomplete="off" type="text" id="product_name" name="product_name" value="https://"><br><br>
         <label for="product_ingredients">Ingredients list: *</label>
         <input autocomplete="off" type="text" id="product_ingredients" name="product_ingredients"><br><br>
         <label for="product_energy">Energy per 100g in kJ: *</label>
@@ -50,32 +48,54 @@ App name
 
     {% block price_insert %}
     <form class="width-50" method="post" action="/price_insert">
-        <!-- <h2 class="mensaje">{{ mensaje }}</h2> -->
         <label for="product_id">Search for a Product: *</label>
-        <input autocomplete="off" type="text" id="product_id" name="product_id" value="last_saved"><br><br>
-        <!-- Default to last saved product_id -->
+        <input list="user_saved_product_ids" autocomplete="off" id="product_id" name="product_id"><br><br>
+        <datalist id="user_saved_product_ids">
+            <option value="user_last_saved_product_id">Last saved</option>
+            <option value="user_other_saved_product_id">Other saved</option>
+            <option value="user_other_saved_product_id">Other saved</option>
+            <option value="user_other_saved_product_id">Other saved</option>
+        </datalist>
         <!-- Message if product not found -->
-        <label for="currency">Search for a Currency: *</label>
-        <input autocomplete="off" type="text" id="currency" name="currency"><br><br>
-        <label for="price">Price per package: *</label>
-        <input autocomplete="off" type="number" id="price" name="price"><br><br>
-        <label for="weight">Net weight in grams: *</label>
-        <input autocomplete="off" type="number" id="weight" name="weight"><br><br>
+        <label for="price">Price: *</label>
+        <input autocomplete="off" type="number" id="price" name="price">
+        <label for="currency_id">Currency: *</label>
+        <input list="currency" autocomplete="off" id="currency_id" name="currency_id"><br><br>
+        <datalist id="currency">
+            <option value="USD" selected>US Dollar</option>
+            <option value="EUR">Euros</option>
+            <option value="BRL">Brazilian Real</option>
+        </datalist>
         <!-- SELECTOR Weight OR Quantity -->
-        <label for="quantity">Quantity in units per package: *</label>
-        <input autocomplete="off" type="number" id="quantity" name="quantity"><br><br>
-        <label for="store">Search for a Store: *</label>
-        <input autocomplete="off" type="text" id="store" name="store"><br><br>
-        <!-- Message if store not found -->
-        <label for="website">Online store Website: *</label>
-        <input autocomplete="off" type="text" id="website" name="website"><br><br>
-        <!-- SELECTOR bought online OR address -->
-        <label for="address">Physical store Address:</label>
-        <input autocomplete="off" type="text" id="address" name="address"><br><br>
-        <label for="country">Physical store country:</label>
-        <input autocomplete="off" type="text" id="country" name="country"><br><br>
+        <div class="flex">
+            <label for="weight_or_quantity">Net weight OR units per package: *</label>
+            <input type="number" id="weight_or_quantity" name="weight_or_quantity" step="1" min="0">
+            <label for="grams_or_units" class="space-between"></label>
+            <select id="grams_or_units" name="grams_or_units">
+                <option value="grams">Grams</option>
+                <option value="units">Units</option>
+            </select>
+        </div>
+        <br>
+        <label for="store_id">Search for a registered Store: *</label>
+        <input list="store_ids" autocomplete="off" id="store_id" name="store_id"><br><br>
+        <datalist id="store_ids">
+            <option value="Mercadona">Address, Country</option>
+            <option value="Online supermarket">www.onlinesupermarket.com</option>
+            <option value="Mercadona">Address, Country</option>
+            <option value="Online supermarket">www.onlinesupermarket.com</option>
+        </datalist>
+        <h2 class="green">If the store yet doesn't appear in the list, please register it now:</h2>
+        <label for="store_website">Online store Website: </label>
+        <input autocomplete="off" type="text" id="store_website" name="store_website"><br><br>
+        <h2 class="green">OR</h2>
+        <label for="store_address">Physical store Address: </label>
+        <input autocomplete="off" type="text" id="store_address" name="store_address"><br><br>
+        <label for="store_country">Physical store country: </label>
+        <input autocomplete="off" type="text" id="store_country" name="store_country"><br><br>
+        <br><br>
         <label for="comment">Comment:</label>
-        <input autocomplete="off" type="text" id="comment" name="comment"><br><br>
+        <textarea rows="6" id="comment" name="comment" maxlength="999" class="width-100"></textarea><br><br>
         <input type="submit" value="SAVE THIS PRICE"
             class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
     </form>
