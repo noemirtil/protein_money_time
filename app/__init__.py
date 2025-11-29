@@ -39,13 +39,11 @@ def create_app():
     # Register blueprints
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
-    from app.routes.product_insert import product_insert_bp
-    from app.routes.price_insert import price_insert_bp
+    from app.routes.inserts import inserts_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
-    app.register_blueprint(product_insert_bp)
-    app.register_blueprint(price_insert_bp)
+    app.register_blueprint(inserts_bp)
 
     app.add_url_rule("/", endpoint="index")
 
