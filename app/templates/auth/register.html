@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Registro de usuario
+    Register new user
 {% endblock title %}
 
 {% block content %}
@@ -11,7 +11,7 @@
         <!-- Header -->
         <div class="text-center mb-6">
             <h2 class="text-2xl sm:text-3xl font-bold text-brand-gray">Crear cuenta</h2>
-            <p class="text-gray-600 mt-2 text-sm sm:text-base">Únete a Protein Money Time</p>
+            <p class="text-gray-600 mt-2 text-sm sm:text-base">Join us at Protein Money Time</p>
         </div>
 
         <!-- Form -->
@@ -25,7 +25,7 @@
                 </label>
                 {{ form.username(
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
-                    placeholder="Elige un nombre de usuario"
+                    placeholder="Write an username"
                 ) }}
                 {% if form.username.errors %}
                     <div class="mt-1">
@@ -46,7 +46,7 @@
                 </label>
                 {{ form.email(
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
-                    placeholder="tu@email.com"
+                    placeholder="example@email.com"
                 ) }}
                 {% if form.email.errors %}
                     <div class="mt-1">
@@ -69,7 +69,7 @@
                 <div class="relative">
                     {{ form.password(
                         class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
-                        placeholder="Mínimo 5 caracteres"
+                        placeholder="Min 5 characters"
                     ) }}
 
                     <button type="button" 
@@ -100,7 +100,7 @@
                 <div class="relative">
                     {{ form.confirm_password(
                         class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
-                        placeholder="Repite tu contraseña"
+                        placeholder="Confirm password"
                     ) }}
 
                     <button type="button" 
@@ -125,7 +125,7 @@
             <div class="pt-2">
                 <button type="submit" 
                         class="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base">
-                    Registrarse
+                    Sign Up
                 </button>
             </div>
         </form>
@@ -133,9 +133,9 @@
         <!-- Login Link -->
         <div class="mt-6 text-center">
             <p class="text-gray-600 text-sm">
-                ¿Ya tienes cuenta? 
+                Already have an account? 
                 <a href="{{ url_for('auth.login') }}" class="text-brand-orange hover:text-orange-600 font-medium hover:underline">
-                    Inicia sesión
+                    Sign In
                 </a>
             </p>
         </div>

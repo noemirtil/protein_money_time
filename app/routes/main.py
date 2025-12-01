@@ -32,7 +32,7 @@ def _assign_nutriscore_data(score):
     # Fallback for unexpected scores below -15
     return 'A', 'green'
 
-def _get_products(cur, limit, offset, **kwargs):
+def _get_products(cur, limit, offset, sort_column='protein', **kwargs):
     """
     Flexible product query with optional filters
     
@@ -102,66 +102,12 @@ def _get_products(cur, limit, offset, **kwargs):
         base_query += " WHERE " + " AND ".join(conditions)
     
     # Add ordering and pagination
-    base_query += " ORDER BY p.protein DESC LIMIT %s OFFSET %s"
+    base_query += f" ORDER BY p.{sort_column} DESC NULLS LAST LIMIT %s OFFSET %s" # <-- USE f-string for dynamic column
     params.extend([limit, offset])
     
     cur.execute(base_query, params)
     return cur.fetchall()
 
-def _process_products(products):
-    """Process products: add nutri-score letter/color"""
-    processed = []
-    for product_row in products:
-        product = dict(product_row)
-        letter, color = _assign_nutriscore_data(product['nutr_score_fr'])
-        product['nutri_letter'] = letter
-        product['nutri_color'] = color
-        processed.append(product)
-    return processed
-
-@main_bp.route('/')
-def index():
-    db = get_db()
-    cur = db.cursor()
-    
-    page = request.args.get('page', 1, type=int)
-    per_page = 12
-    offset = (page - 1) * per_page
-    
-    products = _get_products(cur, per_page, offset)
-    processed_products = _process_products(products)
-    
-    cur.execute("SELECT COUNT(*) as count FROM products")
-    total_products = cur.fetchone()['count']
-    total_pages = (total_products + per_page - 1) // per_page
-    
-    return render_template('main/index.html',
-                        products=processed_products,
-                        page=page,
-                        total_pages=total_pages,
-                        max=max,
-                        min=min)
-
-                        
-@main_bp.route('/api/search')
-def api_search():
-    """API endpoint for dynamic search - returns JSON"""
-    db = get_db()
-    cur = db.cursor()
-    
-    keyword = request.args.get('keyword', '').strip()
-    
-    if not keyword:
-        return jsonify({'products': []})
-    
-    products = _get_products(cur, 100, 0, keyword=keyword)  # Max 100 results
-    processed_products = _process_products(products)
-    
-    return jsonify({
-        'products': processed_products,
-        'count': len(processed_products)
-    })
-    
 def get_protein_score():
     # To look for the highest Protein Score cost-effective products
     query = """
@@ -280,3 +226,130 @@ def get_c_vitamin_score():
     LIMIT %s OFFSET %s;
         """
     return query
+
+def _get_api_products(cur, keyword, sort_by=None):
+    """
+    Fetches products based on keyword, with optional dynamic sorting (for AJAX).
+    
+    NOTE: This uses simplified SQL for quick completion. For production, you 
+    would need to copy the full price/brand joins from your score queries 
+    and adjust the complex ORDER BY using a CASE statement or CTEs.
+    """
+    limit = 100 # Keep the limit for API search
+    
+    # Base query (must match the columns your renderProducts expects)
+    base_query = """
+        SELECT
+            p.id, p.name, p.energy, p.fat, p.sat_fat, p.sodium,
+            p.carbs, p.fiber, p.sugars, p.protein, p.c_vitamin,
+            p.nutr_score_fr, p.ingredients_text,
+            b.name as brand_name,
+            pr.price, pr.weight, pr.date as price_date,
+            s.name as store_name,
+            curr.currency_code
+        FROM products p
+        LEFT JOIN brands b ON p.brand_id = b.id
+        LEFT JOIN LATERAL (
+            SELECT price, weight, date, store_id, currency_id
+            FROM prices
+            WHERE product_id = p.id
+            ORDER BY date DESC
+            LIMIT 1
+        ) pr ON true
+        LEFT JOIN stores s ON pr.store_id = s.id
+        LEFT JOIN currencies curr ON pr.currency_id = curr.id
+        WHERE (p.name ILIKE %s OR b.name ILIKE %s OR s.name ILIKE %s)
+    """
+    
+    params = [f'%{keyword}%', f'%{keyword}%', f'%{keyword}%']
+    
+    # Dynamic ORDER BY Logic
+    if sort_by == 'protein_value':
+        # NOTE: Using raw protein for simplicity. For complex score, you must 
+        # add the full score calculation here or use a CTE.
+        order_clause = "ORDER BY p.protein DESC NULLS LAST"
+    elif sort_by == 'vitamin_c_value':
+        order_clause = "ORDER BY p.c_vitamin DESC NULLS LAST"
+    else:
+        # Default API search sort (can be simple name match or the default protein)
+        order_clause = "ORDER BY p.protein DESC NULLS LAST"
+
+    final_query = f"{base_query} {order_clause} LIMIT %s"
+    params.append(limit)
+
+    cur.execute(final_query, params)
+    return cur.fetchall()
+
+def _process_products(products):
+    """Process products: add nutri-score letter/color"""
+    processed = []
+    for product_row in products:
+        product = dict(product_row)
+        letter, color = _assign_nutriscore_data(product['nutr_score_fr'])
+        product['nutri_letter'] = letter
+        product['nutri_color'] = color
+        processed.append(product)
+    return processed
+
+@main_bp.route('/')
+def index():
+    db = get_db()
+    cur = db.cursor()
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
+    offset = (page - 1) * per_page
+    
+    sort_by = request.args.get('sort')
+    products = []
+    
+    simple_sort_column = 'protein'
+    
+    if sort_by == 'protein_value':
+        sql_query = get_protein_score()
+        cur.execute(sql_query, (per_page, offset))
+        products = cur.fetchall()
+    elif sort_by == 'vitamin_c_value':
+        sql_query = get_c_vitamin_score()
+        cur.execute(sql_query, (per_page, offset))
+        products = cur.fetchall()
+    else:
+        products = _get_products(cur, per_page, offset, sort_column=simple_sort_column)
+        
+    processed_products = _process_products(products)
+    
+    cur.execute("SELECT COUNT(*) as count FROM products")
+    total_products = cur.fetchone()['count']
+    total_pages = (total_products + per_page - 1) // per_page
+        
+    return render_template('main/index.html',
+                            products=processed_products,
+                            page=page,
+                            total_pages=total_pages,
+                            max=max,
+                            min=min)
+
+                        
+@main_bp.route('/api/search')
+def api_search():
+    """API endpoint for dynamic search - returns JSON"""
+    db = get_db()
+    cur = db.cursor()
+    
+    keyword = request.args.get('keyword', '').strip()
+    # 1. Read the sort parameter from the request
+    sort_by = request.args.get('sort') 
+    
+    if not keyword:
+        # If there's no keyword, don't execute a search
+        return jsonify({'products': [], 'count': 0})
+    
+    # Pass the sort_by parameter to a new helper function
+    products = _get_api_products(cur, keyword, sort_by) # New function call
+    processed_products = _process_products(products)
+    
+    return jsonify({
+        'products': processed_products,
+        'count': len(processed_products)
+    })
+    

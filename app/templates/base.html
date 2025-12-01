@@ -16,6 +16,8 @@
         
         <!-- Tailwind CSS CDN -->
         <script src="https://cdn.tailwindcss.com"></script>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         
         <!-- Custom configuration -->
         <script>
@@ -70,9 +72,10 @@
                     <!-- Desktop Navigation -->
                     <div class="hidden md:flex items-center space-x-4">
                         {% if current_user.is_authenticated %}
+                            <p>{{ current_user.username }}'s account</p>
                             <a href="{{ url_for('main.index') }}" 
                                 class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                                Inicio
+                                Home
                             </a>
                             <form method="POST" action="{{ url_for('auth.logout') }}" 
                                     class="inline"
@@ -80,21 +83,21 @@
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                 <button type="submit" 
                                         class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md transition text-sm lg:text-base">
-                                    Cerrar sesión
+                                    Sign Out
                                 </button>
                             </form>
                         {% else %}
                             <a href="{{ url_for('main.index') }}" 
                                 class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                                Inicio
+                                Home
                             </a>
                             <a href="{{ url_for('auth.register') }}" 
                                 class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                                Registrarse
+                                Sign Up
                             </a>
                             <a href="{{ url_for('auth.login') }}" 
                                 class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
-                                Iniciar sesión
+                                Sign In
                             </a>
                         {% endif %}
                     </div>

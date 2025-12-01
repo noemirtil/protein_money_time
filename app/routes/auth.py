@@ -35,7 +35,7 @@ def register():
             if user_dict:
                 user_obj = User(user_dict)
                 login_user(user_obj)
-                flash('¡Bienvenid@! Tu cuenta ha sido creada.', 'success')
+                flash('Welcome! Your account has been successfully created.', 'success')
                 return redirect(url_for('main.index'))
             
         except Exception as e:
@@ -44,9 +44,9 @@ def register():
             print(f"Error type: {type(e)}")
             
             if 'unique' in str(e).lower():
-                flash('Este usuario o email ya existe.', 'error')
+                flash('E-mail or username already exists.', 'error')
             else:
-                flash('Error al registrar. Intenta de nuevo.', 'error')
+                flash('E-mail or username already exists.', 'error')
             
     return render_template('auth/register.html', form=form)
             
@@ -69,19 +69,19 @@ def login():
                 user_obj = User(user_dict)
                 if user_obj.is_password_correct(password):
                     login_user(user_obj)
-                    flash(f'¡Bienvenid@, {user_obj.username}!', 'success')
+                    flash(f'Welcome, {user_obj.username}!', 'success')
                     return redirect(url_for('main.index'))
                 else:
-                    flash('Credenciales incorrectas. Intente nuevamente.', 'error')
+                    flash('Invalid credentials. Try again.', 'error')
                     return redirect(url_for('auth.login'))
             else:
-                flash('Credenciales incorrectas. Intente nuevamente.', 'error')
+                flash('Invalid credentials. Try again.', 'error')
                 return redirect(url_for('auth.login'))
         except Exception as e:
             print(f"❌ ERROR: {e}")
             print(f"Error type: {type(e)}")
             
-            flash('Error al ingresar. Intenta de nuevo.', 'error')
+            flash('Error logging in. Try again.', 'error')
         
     return render_template('auth/login.html', form=form)
 
@@ -89,7 +89,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('Sesión cerrada con éxito.', 'success')
+    flash('Logged out successfully. See you again soon!.', 'success')
     return redirect(url_for('main.index'))
 
 @auth_bp.route('/check-username', methods=['GET', 'POST'])

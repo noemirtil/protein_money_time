@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}
-    Iniciar sesión
+    Sign in
 {% endblock title %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <div class="bg-white rounded-lg shadow-xl p-6 sm:p-8 md:p-10 w-full max-w-md">
         <!-- Header -->
         <div class="text-center mb-6">
-            <h2 class="text-2xl sm:text-3xl font-bold text-brand-gray">Inicia sesión</h2>
+            <h2 class="text-2xl sm:text-3xl font-bold text-brand-gray">Sign In</h2>
         </div>
 
         <!-- Form -->
@@ -23,7 +23,7 @@
                 </label>
                 {{ form.username_email(
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
-                    placeholder="Usuario o email"
+                    placeholder="User or email"
                 ) }}
                 {% if form.username_email.errors %}
                     <div class="mt-1">
@@ -43,7 +43,7 @@
                 <div class="relative">
                     {{ form.password(
                         class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-orange focus:border-transparent transition outline-none text-sm sm:text-base",
-                        placeholder="Tu contraseña"
+                        placeholder="Your password"
                     ) }}
 
                     <button type="button" 
@@ -66,7 +66,7 @@
             <div class="pt-2">
                 <button type="submit" 
                         class="w-full bg-brand-orange hover:bg-orange-600 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 transform hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base">
-                    Iniciar sesión
+                    Sign In
                 </button>
             </div>
         </form>
@@ -74,9 +74,9 @@
         <!-- Register Link -->
         <div class="mt-6 text-center">
             <p class="text-gray-600 text-sm">
-                ¿No tienes cuenta? 
+                Don't have an account yet?  
                 <a href="{{ url_for('auth.register') }}" class="text-brand-orange hover:text-orange-600 font-medium hover:underline">
-                    Regístrate
+                    Sign Up
                 </a>
             </p>
         </div>
