@@ -117,7 +117,7 @@ function renderProducts(products) {
                     ` : ''}
 
                     ${product.price && product.currency_code ? `
-                    <p>Latest Price: <span class="font-semibold">${product.currency_code} ${parseFloat(product.price/2).toFixed(2)}</span> 
+                    <p>Latest Price: <span class="font-semibold">${product.currency_code} ${parseFloat(product.price/100).toFixed(2)}</span> 
                         ${product.price_date ? `(${new Date(product.price_date).toLocaleDateString()})` : ''}
                     </p>
                     ` : ''}

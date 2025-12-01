@@ -150,7 +150,7 @@
                     {% endif %}
 
                     {% if product.price and product.currency_code %}
-                    <p>Latest Price: <span class="font-semibold">{{ product.currency_code }} {{ product.price / 100 | round(2) }}</span> ({{ product.price_date.year }}-{{ product.price_date.month }}-{{ product.price_date.day }})</p>
+                    <p>Latest Price: <span class="font-semibold">{{ product.currency_code }} {{ product.price | round(2) }}</span> ({{ product.price_date.year }}-{{ product.price_date.month }}-{{ product.price_date.day }})</p>
                     {% endif %}
 
                     {% if product.store_name %}
