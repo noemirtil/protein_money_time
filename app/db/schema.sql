@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS "countries" CASCADE;
 DROP TABLE IF EXISTS "junction_currency_country" CASCADE;
 DROP TABLE IF EXISTS "stores" CASCADE;
 DROP TABLE IF EXISTS "prices" CASCADE;
+DROP TABLE IF EXISTS "incomplete_products" CASCADE;
+DROP TABLE IF EXISTS "incomplete_prices" CASCADE;
 
 -- Represent every user registered in the platform
 -- Count the number of its contributions to show in their profile
@@ -28,11 +30,15 @@ CREATE TABLE "brands" (
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
--- Create a function to mark as discontinued a product
+-- Create a function to mark products as discontinued for a specific brand
 CREATE OR REPLACE FUNCTION discontinue_product()
 RETURNS TRIGGER AS $discontinue_product$
     BEGIN
-        UPDATE "products" SET "discontinued" = 'true';
+        -- Update products belonging to the brand that was marked inactive
+        UPDATE "products"
+        SET "discontinued" = 'true'
+        WHERE "brand_id" = NEW."id";
+        RETURN NEW;
     END;
 $discontinue_product$ LANGUAGE plpgsql;
 
@@ -40,13 +46,13 @@ $discontinue_product$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER "inactive_brand"
 AFTER UPDATE OF "inactive" ON "brands"
 FOR EACH ROW
-WHEN (OLD."inactive" = 'true')
+-- Trigger only fires when a brand is being marked inactive (not when it's already inactive):
+WHEN (NEW."inactive" = 'true' AND OLD."inactive" = 'false')
 EXECUTE FUNCTION discontinue_product();
 -- in case a brand is reactivated,its products won't automatically be marked as 'reintroduced'
 
 
--- Represent any product (ingredient or ready-made), with nutriments
--- /opt/homebrew/bin/createuser per 100g in order to calculate for each recipe
+-- Represent any product (ingredient or ready-made), with nutriments per 100g in order to calculate for each recipe
 CREATE TABLE "products" (
     "id" SERIAL PRIMARY KEY,
     "off_code" BIGINT UNIQUE, -- Open Food Facts database code
@@ -140,6 +146,79 @@ CREATE TABLE "incomplete_products" (
     "product_ingredients" TEXT, -- can be only one ingredient if it is a simple ingredient
     "completed" BOOLEAN NOT NULL DEFAULT 'false'
 );
+
+-- Create a function to insert a product into the products table
+CREATE OR REPLACE FUNCTION insert_product()
+RETURNS TRIGGER AS $insert_product$
+    BEGIN
+        INSERT INTO "products" (
+            "url",
+            "name",
+            "brand_id",
+            "energy",
+            "protein",
+            "fat",
+            "sat_fat",
+            "carbs",
+            "sugars",
+            "fiber",
+            "sodium",
+            "c_vitamin",
+            "ingredients_text",
+            "author_id"
+        )
+        VALUES (
+            NEW."product_url",
+            NEW."product_name",
+            NEW."brand_id",
+            NEW."product_energy",
+            NEW."product_protein",
+            NEW."product_fat",
+            NEW."product_sat_fat",
+            NEW."product_carbs",
+            NEW."product_sugars",
+            NEW."product_fiber",
+            NEW."product_sodium",
+            NEW."product_c_vitamin",
+            NEW."product_ingredients",
+            NEW."author_id"
+        );
+
+        RETURN NEW;
+    END;
+$insert_product$ LANGUAGE plpgsql;
+
+-- Create a trigger to call insert_product() when an incomplete_products entry is being marked as "completed"
+CREATE OR REPLACE TRIGGER "completed_product"
+AFTER UPDATE OF "completed" ON "incomplete_products"
+FOR EACH ROW
+-- The trigger only fires when a product is being marked completed (not when it was already completed):
+WHEN (NEW."completed" = 'true' AND OLD."completed" = 'false')
+EXECUTE FUNCTION insert_product();
+-- Create a function to mark incomplete_product as completed
+CREATE OR REPLACE FUNCTION mark_incomplete_as_completed()
+RETURNS TRIGGER AS $mark_incomplete_as_completed$
+    BEGIN
+        IF NEW."product_url" IS NOT NULL
+            AND NEW."product_name" IS NOT NULL
+            AND NEW."product_energy" IS NOT NULL
+            AND NEW."product_protein" IS NOT NULL
+            AND NEW."product_fat" IS NOT NULL
+            AND NEW."product_carbs" IS NOT NULL
+            AND NEW."product_ingredients" IS NOT NULL
+        THEN
+            NEW."completed" = 'true';
+        END IF;
+        RETURN NEW;
+    END;
+$mark_incomplete_as_completed$ LANGUAGE plpgsql;
+
+-- Create a trigger to check completeness and mark "completed" as true
+-- BEFORE inser/update, so that both operations are executed at the same time
+CREATE OR REPLACE TRIGGER "check_completeness"
+BEFORE INSERT OR UPDATE ON "incomplete_products"
+FOR EACH ROW
+EXECUTE FUNCTION mark_incomplete_as_completed();
 
 -- incomplete_prices
 CREATE TABLE "incomplete_prices" (

@@ -15,12 +15,24 @@ App name
     <form class="width-50" method="post" action="/inserts">
         <label for="product_name">Product name: *</label>
         <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
-        <label for="brand_name">Brand name: *</label>
-        <input autocomplete="off" type="text" id="brand_name" name="brand_name"><br><br>
+        <label for="product_url">Product link: *</label>
+        <input autocomplete="off" type="text" id="product_url" name="product_url" placeholder="https://"><br><br>
+
+
+        <label for="old_brand_name">Search for a registered Brand: *</label>
+        <input type="text" list="old_brand_name" name="old_brand_name" placeholder="Select brand"><br><br>
+        <datalist id="old_brand_name">
+            {% for brand in brands %}
+            <option value="{{ brand['name'] }}">{{ brand["website"] }}</option>
+            {% endfor %}
+        </datalist>
+
+
+        <h2 class="green">If the brand doesn't appear yet in the list, please register it now:</h2>
+        <label for="new_brand_name">Brand name: *</label>
+        <input autocomplete="off" type="text" id="new_brand_name" name="new_brand_name"><br><br>
         <label for="brand_website">Brand website: *</label>
         <input autocomplete="off" type="text" id="brand_website" name="brand_website"><br><br>
-        <label for="product_url">Product link: *</label>
-        <input autocomplete="off" type="text" id="product_name" name="product_name" value="https://"><br><br>
         <label for="product_ingredients">Ingredients list: *</label>
         <input autocomplete="off" type="text" id="product_ingredients" name="product_ingredients"><br><br>
         <label for="product_energy">Energy per 100g in kJ: *</label>
@@ -86,7 +98,7 @@ App name
             <option value="Mercadona">Address, Country</option>
             <option value="Online supermarket">www.onlinesupermarket.com</option>
         </datalist>
-        <h2 class="green">If the store yet doesn't appear in the list, please register it now:</h2>
+        <h2 class="green">If the store doesn't appear yet in the list, please register it now:</h2>
         <label for="store_website">Online store Website: </label>
         <input autocomplete="off" type="text" id="store_website" name="store_website"><br><br>
         <h2 class="green">OR</h2>

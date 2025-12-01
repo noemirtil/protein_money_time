@@ -1,11 +1,13 @@
--- DELETE FROM "users" CASCADE;
--- DELETE FROM "products" CASCADE;
--- DELETE FROM "brands" CASCADE;
--- DELETE FROM "junction_currency_country" CASCADE;
--- DELETE FROM "currencies" CASCADE;
--- DELETE FROM "stores" CASCADE;
--- DELETE FROM "countries" CASCADE;
--- DELETE FROM "prices" CASCADE;
+DELETE FROM "users" CASCADE;
+DELETE FROM "products" CASCADE;
+DELETE FROM "brands" CASCADE;
+DELETE FROM "junction_currency_country" CASCADE;
+DELETE FROM "currencies" CASCADE;
+DELETE FROM "stores" CASCADE;
+DELETE FROM "countries" CASCADE;
+DELETE FROM "prices" CASCADE;
+DELETE FROM "incomplete_products" CASCADE;
+DELETE FROM "incomplete_prices" CASCADE;
 
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),
@@ -57,11 +59,13 @@ DECLARE
 BEGIN
     FOR row IN SELECT * FROM "tmp_products"
     LOOP
-        INSERT INTO "products"("off_code", "url", "name", "brand_id", "ingredients_text", "energy", "fat", "sat_fat", "carbs", "sugars", "fiber", "protein", "sodium", "c_vitamin", "nutr_score_fr")
+        INSERT INTO "products"("off_code", "url", "name", "brand_id", "ingredients_text", "energy", "fat", "sat_fat", "carbs", "sugars", "fiber", "protein", "sodium", "c_vitamin", "nutr_score_fr", "author_id")
         VALUES (row.off_code, row.url, row.name,
             (SELECT "id" FROM "brands" WHERE "name" = row.brand_name),
-            row.ingredients_text, row.energy, row.fat, row.sat_fat, row.carbs, row.sugars, row.fiber, row.protein, row.sodium, row.c_vitamin, row.nutr_score_fr
+            row.ingredients_text, row.energy, row.fat, row.sat_fat, row.carbs, row.sugars, row.fiber, row.protein, row.sodium, row.c_vitamin, row.nutr_score_fr,
+            (SELECT "id" FROM "users" WHERE "username" = 'Noemi')
             );
+-- author_id always set to Noemi with this seed file
     END LOOP;
 END $$;
 DROP TABLE "tmp_products";
@@ -93,16 +97,17 @@ BEGIN
 END $$;
 DROP TABLE "tmp_junction";
 
-INSERT INTO "stores" ("name", "address", "website", "country_id") VALUES
+INSERT INTO "stores" ("name", "address", "website", "country_id", "author_id") VALUES
 ('Consum', 'Carrer de València, 478, L''Eixample, 08013 Barcelona', 'https://www.consum.es/', (
     SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
-)),
+), (SELECT "id" FROM "users" WHERE "username" = 'Noemi')),
+-- author_id always set to Noemi with this seed file
 ('Carrefour', 'Westfield Las Glorias, Calle Les Glories, esquina Calle Llacunna, 155, Av. Diagonal, 208, Centro Comercial, 08018 Barcelona', 'https://www.carrefour.es/tiendas-carrefour/hipermercados/carrefour/las_glorias.aspx', (
     SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
-)),
+), (SELECT "id" FROM "users" WHERE "username" = 'Noemi')),
 ('Mercadona', 'Carrer del Perú, 151, Sant Martí, 08018 Barcelona', 'http://mercadona.es/', (
     SELECT "id" FROM "countries" WHERE "country" = 'SPAIN'
-));
+), (SELECT "id" FROM "users" WHERE "username" = 'Noemi'));
 
 -- seeding prices with random values
 DO $$
