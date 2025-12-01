@@ -6,8 +6,8 @@ DROP TABLE IF EXISTS "countries" CASCADE;
 DROP TABLE IF EXISTS "junction_currency_country" CASCADE;
 DROP TABLE IF EXISTS "stores" CASCADE;
 DROP TABLE IF EXISTS "prices" CASCADE;
-DROP TABLE IF EXISTS "incomplete_products" CASCADE;
-DROP TABLE IF EXISTS "incomplete_prices" CASCADE;
+DROP TABLE IF EXISTS "presaved_products" CASCADE;
+DROP TABLE IF EXISTS "presaved_prices" CASCADE;
 
 -- Represent every user registered in the platform
 -- Count the number of its contributions to show in their profile
@@ -125,8 +125,8 @@ CREATE TABLE "prices" (
     "deleted" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
--- incomplete_products
-CREATE TABLE "incomplete_products" (
+-- Pre-saved products
+CREATE TABLE "presaved_products" (
     "id" SERIAL PRIMARY KEY,
     "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "product_url" VARCHAR(2048) UNIQUE,
@@ -144,6 +144,7 @@ CREATE TABLE "incomplete_products" (
     "product_sodium" REAL CHECK ("product_sodium" BETWEEN 0 AND 100), -- for 100g
     "product_c_vitamin" REAL CHECK ("product_c_vitamin" BETWEEN 0 AND 100), -- for 100g
     "product_ingredients" TEXT, -- can be only one ingredient if it is a simple ingredient
+    "creation_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "completed" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -188,16 +189,16 @@ RETURNS TRIGGER AS $insert_product$
     END;
 $insert_product$ LANGUAGE plpgsql;
 
--- Create a trigger to call insert_product() when an incomplete_products entry is being marked as "completed"
-CREATE OR REPLACE TRIGGER "completed_product"
-AFTER UPDATE OF "completed" ON "incomplete_products"
+-- Create a trigger to call insert_product() when an presaved_products entry is being marked as "completed"
+CREATE OR REPLACE TRIGGER "insert_presaved_products"
+AFTER UPDATE OF "completed" ON "presaved_products"
 FOR EACH ROW
 -- The trigger only fires when a product is being marked completed (not when it was already completed):
 WHEN (NEW."completed" = 'true' AND OLD."completed" = 'false')
 EXECUTE FUNCTION insert_product();
 -- Create a function to mark incomplete_product as completed
-CREATE OR REPLACE FUNCTION mark_incomplete_as_completed()
-RETURNS TRIGGER AS $mark_incomplete_as_completed$
+CREATE OR REPLACE FUNCTION mark_presaved_as_completed()
+RETURNS TRIGGER AS $mark_presaved_as_completed$
     BEGIN
         IF NEW."product_url" IS NOT NULL
             AND NEW."product_name" IS NOT NULL
@@ -211,17 +212,17 @@ RETURNS TRIGGER AS $mark_incomplete_as_completed$
         END IF;
         RETURN NEW;
     END;
-$mark_incomplete_as_completed$ LANGUAGE plpgsql;
+$mark_presaved_as_completed$ LANGUAGE plpgsql;
 
 -- Create a trigger to check completeness and mark "completed" as true
 -- BEFORE inser/update, so that both operations are executed at the same time
 CREATE OR REPLACE TRIGGER "check_completeness"
-BEFORE INSERT OR UPDATE ON "incomplete_products"
+BEFORE INSERT OR UPDATE ON "presaved_products"
 FOR EACH ROW
-EXECUTE FUNCTION mark_incomplete_as_completed();
+EXECUTE FUNCTION mark_presaved_as_completed();
 
 -- incomplete_prices
-CREATE TABLE "incomplete_prices" (
+CREATE TABLE "presaved_prices" (
     "id" SERIAL PRIMARY KEY,
     "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "product_id" INT NOT NULL REFERENCES "products",

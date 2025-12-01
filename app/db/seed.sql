@@ -6,8 +6,8 @@ DELETE FROM "currencies" CASCADE;
 DELETE FROM "stores" CASCADE;
 DELETE FROM "countries" CASCADE;
 DELETE FROM "prices" CASCADE;
-DELETE FROM "incomplete_products" CASCADE;
-DELETE FROM "incomplete_prices" CASCADE;
+DELETE FROM "presaved_products" CASCADE;
+DELETE FROM "presaved_prices" CASCADE;
 
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),

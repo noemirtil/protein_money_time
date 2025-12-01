@@ -40,10 +40,12 @@ def create_app():
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
     from app.routes.inserts import inserts_bp
+    from app.routes.presaved import presaved_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
     app.register_blueprint(inserts_bp)
+    app.register_blueprint(presaved_bp)
 
     app.add_url_rule("/", endpoint="index")
 

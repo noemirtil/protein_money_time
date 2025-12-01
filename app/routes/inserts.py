@@ -16,40 +16,47 @@ def inserts():
 
     author_id = current_user.id
     if request.method == "POST":
-        product_name = request.form["product_name"] or None
-        product_url = request.form["product_url"] or None
-        old_brand_name = request.form["old_brand_name"] or None
-        brand_id = (
-            (
-                cur.execute(
-                    "SELECT id FROM brands WHERE name = %s", (old_brand_name,)
-                ).fetchone()["id"]
-            )
-            if old_brand_name
-            else None
-        )
-        brand_name = old_brand_name or request.form["new_brand_name"] or None
-        brand_website = request.form["brand_website"] or None
-        product_ingredients = request.form["product_ingredients"] or None
-        product_energy = request.form["product_energy"] or None
-        product_protein = request.form["product_protein"] or None
-        product_fat = request.form["product_fat"] or None
-        product_sat_fat = request.form["product_sat_fat"] or None
-        product_carbs = request.form["product_carbs"] or None
-        product_sugars = request.form["product_sugars"] or None
-        product_fiber = request.form["product_fiber"] or None
-        product_sodium = request.form["product_sodium"] or None
-        product_c_vitamin = request.form["product_c_vitamin"] or None
+        # Required field
+        product_name = (request.form.get("product_name") or "").strip()
+
+        # Optional fields: normalize empty to None
+        def opt(name):
+            val = request.form.get(name)
+            val = val.strip() if val is not None else None
+            return val or None
+
+        product_url = opt("product_url")
+        brand_id = "1"
+        brand_name = "temp"
+        brand_website = opt("brand_website")
+        product_ingredients = opt("product_ingredients")
+        product_energy = opt("product_energy")
+        product_protein = opt("product_protein")
+        product_fat = opt("product_fat")
+        product_sat_fat = opt("product_sat_fat")
+        product_carbs = opt("product_carbs")
+        product_sugars = opt("product_sugars")
+        product_fiber = opt("product_fiber")
+        product_sodium = opt("product_sodium")
+        product_c_vitamin = opt("product_c_vitamin")
 
         message = None
         if not product_name:
             message = "Product name is required."
+
         if message is not None:
             flash(message)
-
         else:
             db.execute(
-                "INSERT INTO incomplete_products (author_id, product_name, product_url, brand_id, brand_name, brand_website, product_ingredients, product_energy, product_protein, product_fat, product_sat_fat, product_carbs, product_sugars, product_fiber, product_sodium, product_c_vitamin) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                """
+                INSERT INTO presaved_products (
+                    author_id, product_name, product_url, brand_id, brand_name,
+                    brand_website, product_ingredients, product_energy, product_protein,
+                    product_fat, product_sat_fat, product_carbs, product_sugars,
+                    product_fiber, product_sodium, product_c_vitamin
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
                 (
                     author_id,
                     product_name,
@@ -71,10 +78,12 @@ def inserts():
             )
 
             db.commit()
-            message = "Product registered successfully!"
+            message = (
+                "Successfully pre-saved product data, please complete missing data ASAP"
+            )
             flash(message)
 
-            return redirect(url_for("inserts.inserts"))
+            return redirect(url_for("presaved.presaved"))
 
     return render_template("main/inserts.html", products=products, brands=brands)
 

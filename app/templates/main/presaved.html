@@ -10,15 +10,47 @@ App name
 <p>Hello, {{ current_user.username }}</p>
 {% endif %}
 
+<h2>Choose a pre-saved product to complete:</h2>
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Creation date</th>
+        <th>Delete</th>
+        <th>Edit</th>
+    </tr>
+    {% for row in presaved %}
+    <tr>
+        <td>{{ row["product_name"] }}</td>
+        <td>{{ row["creation_date"] }}</td>
+        <td>
+            <form action="/presaved/delete" method="post">
+                <input id="delete_id" name="delete_id" type="hidden" value="{{ row['id'] }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="icons" type="submit">❌</button>
+            </form>
+        </td>
+        <td>
+            <form action="/presaved/edit" method="post">
+                <input id="edit_id" name="edit_id" type="hidden" value="{{ row['id'] }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="icons" type="submit">✏️</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
 <div class="space-between">
     <!-- {% block product_insert %} -->
-    <form class="width-50" method="post" action="/inserts">
+    <form class="width-50" method="post" action="/presaved">
         <label for="product_name">Product name: *</label>
-        <input autocomplete="off" type="text" id="product_name" name="product_name"><br><br>
+        <input autocomplete="off" type="text" id="product_name" name="product_name"
+            value="{{ presaved[0]['product_name']}}"><br><br>
         <label for="product_url">Product link: *</label>
-        <input autocomplete="off" type="text" id="product_url" name="product_url" placeholder="https://"><br><br>
+        <input autocomplete="off" type="text" id="product_url" name="product_url"
+            value="{{ presaved[0]['product_url']}}"><br><br>
         <label for="old_brand_name">Search for a registered Brand: *</label>
-        <input type="text" list="old_brand_name" name="old_brand_name" placeholder="Select brand"><br><br>
+        <input type="text" list="old_brand_name" name="old_brand_name" value="Select brand"><br><br>
         <datalist id="old_brand_name">
             {% for brand in brands %}
             <option value="{{ brand['name'] }}">{{ brand["website"] }}</option>
@@ -26,31 +58,44 @@ App name
         </datalist>
         <h2 class="green">If the brand doesn't appear yet in the list, please register it now:</h2>
         <label for="new_brand_name">Brand name: *</label>
-        <input autocomplete="off" type="text" id="new_brand_name" name="new_brand_name"><br><br>
+        <input autocomplete="off" type="text" id="new_brand_name" name="new_brand_name"
+            value="{{ presaved[0]['brand_name']}}"><br><br>
         <label for="brand_website">Brand website: *</label>
-        <input autocomplete="off" type="text" id="brand_website" name="brand_website"><br><br>
+        <input autocomplete="off" type="text" id="brand_website" name="brand_website"
+            value="{{ presaved[0]['brand_website']}}"><br><br>
         <label for="product_ingredients">Ingredients list: *</label>
-        <input autocomplete="off" type="text" id="product_ingredients" name="product_ingredients"><br><br>
+        <input autocomplete="off" type="text" id="product_ingredients" name="product_ingredients"
+            value="{{ presaved[0]['product_ingredients']}}"><br><br>
         <label for="product_energy">Energy per 100g in kJ: *</label>
-        <input autocomplete="off" type="text" id="product_energy" name="product_energy"><br><br>
+        <input autocomplete="off" type="text" id="product_energy" name="product_energy"
+            value="{{ presaved[0]['product_energy']}}"><br><br>
         <label for="product_protein">Protein per 100g: *</label>
-        <input autocomplete="off" type="text" id="product_protein" name="product_protein"><br><br>
+        <input autocomplete="off" type="text" id="product_protein" name="product_protein"
+            value="{{ presaved[0]['product_protein']}}"><br><br>
         <label for="product_fat">Fat per 100g: *</label>
-        <input autocomplete="off" type="text" id="product_fat" name="product_fat"><br><br>
+        <input autocomplete="off" type="text" id="product_fat" name="product_fat"
+            value="{{ presaved[0]['product_fat']}}"><br><br>
         <label for="product_sat_fat">Saturated fat per 100g:</label>
-        <input autocomplete="off" type="text" id="product_sat_fat" name="product_sat_fat"><br><br>
+        <input autocomplete="off" type="text" id="product_sat_fat" name="product_sat_fat"
+            value="{{ presaved[0]['product_sat_fat']}}"><br><br>
         <label for="product_carbs">Carbohydrates per 100g: *</label>
-        <input autocomplete="off" type="text" id="product_carbs" name="product_carbs"><br><br>
+        <input autocomplete="off" type="text" id="product_carbs" name="product_carbs"
+            value="{{ presaved[0]['product_carbs']}}"><br><br>
         <label for="product_sugars">Sugars per 100g:</label>
-        <input autocomplete="off" type="text" id="product_sugars" name="product_sugars"><br><br>
+        <input autocomplete="off" type="text" id="product_sugars" name="product_sugars"
+            value="{{ presaved[0]['product_sugars']}}"><br><br>
         <label for="product_fiber">Fiber per 100g:</label>
-        <input autocomplete="off" type="text" id="product_fiber" name="product_fiber"><br><br>
+        <input autocomplete="off" type="text" id="product_fiber" name="product_fiber"
+            value="{{ presaved[0]['product_fiber']}}"><br><br>
         <label for="product_sodium">Sodium per 100g:</label>
-        <input autocomplete="off" type="text" id="product_sodium" name="product_sodium"><br><br>
+        <input autocomplete="off" type="text" id="product_sodium" name="product_sodium"
+            value="{{ presaved[0]['product_sodium']}}"><br><br>
         <label for="product_c_vitamin">C Vitamin per 100g:</label>
-        <input autocomplete="off" type="text" id="product_c_vitamin" name="product_c_vitamin"><br><br>
+        <input autocomplete="off" type="text" id="product_c_vitamin" name="product_c_vitamin"
+            value="{{ presaved[0]['product_c_vitamin']}}"><br><br>
+        <input type="hidden" name="presaved_id" value="{{ presaved[0]['id'] }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="submit" value="SAVE THIS NEW PRODUCT"
+        <input type="submit" value="COMPLETE THIS PRE-SAVED PRODUCT"
             class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
     </form>
     <!-- {% endblock product_insert %} -->
