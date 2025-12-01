@@ -173,7 +173,6 @@ searchInput.addEventListener('input', () => {
 });
 
 
-// --- KEEP ONLY THIS Initialization Logic ---
 const urlParams = new URLSearchParams(window.location.search);
 const currentSort = urlParams.get('sort');
 
@@ -199,8 +198,6 @@ setIconState(proteinIcon, proteinActive, activeProtein, inactiveProtein);
 const vitaminActive = currentSort === 'vitamin_c_value'; // Checks for the correct value
 setIconState(vitaminCIcon, vitaminActive, activeVitamin, inactiveVitamin);
 
-// Add these click handlers to the end of api-search.js
-
 function handleScoreClick(event) {
     // 1. Get the requested sort type
     const sortType = event.currentTarget.dataset.sort;
@@ -216,7 +213,6 @@ function handleScoreClick(event) {
     }
 }
 
-// Re-wire your event listeners (since the old functions are removed)
 if (proteinIcon) {
     proteinIcon.addEventListener('click', handleScoreClick);
 }
@@ -224,7 +220,6 @@ if (vitaminCIcon) {
     vitaminCIcon.addEventListener('click', handleScoreClick);
 }
 
-// 3. Create a new function to combine keyword and sort search
 async function performDynamicSearch(keyword, sortType) {
     const paginationDiv = document.querySelector('.pagination');
     
@@ -238,11 +233,9 @@ async function performDynamicSearch(keyword, sortType) {
     }
     
     try {
-        // Update the API endpoint to include the 'sort' parameter
         const response = await fetch(`/api/search?keyword=${encodeURIComponent(keyword)}&sort=${sortType}`);
         const data = await response.json();
         
-        // ... (rest of search rendering logic remains the same) ...
         mainProducts.classList.add('hidden');
         paginationDiv.classList.add('hidden');
         searchResults.classList.remove('hidden');
