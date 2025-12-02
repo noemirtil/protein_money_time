@@ -56,7 +56,7 @@ App name
         <input autocomplete="off" type="text" id="product_url" name="product_url"
             value="{{ (presaved_edit[0].product_url if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
 
-        <label for="old_brand_name">Search for a registered Brand:</label>
+        <label for="old_brand_name">Search for an existing Brand:</label>
         <input type="text" list="old_brand_name" name="old_brand_name"
             value="{{ (presaved_edit[0].brand_name if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
         <datalist id="old_brand_name">
@@ -66,11 +66,11 @@ App name
         </datalist>
 
         <h2 class="green">If the brand doesn't appear yet in the list, please register it now:</h2>
-        <label for="new_brand_name">Brand name:</label>
+        <label for="new_brand_name">NEW Brand name:</label>
         <input autocomplete="off" type="text" id="new_brand_name" name="new_brand_name"
             value="{{ (presaved_edit[0].brand_name if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
 
-        <label for="brand_website">Brand website:</label>
+        <label for="brand_website">NEW Brand website:</label>
         <input autocomplete="off" type="text" id="brand_website" name="brand_website"
             value="{{ (presaved_edit[0].brand_website if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
 

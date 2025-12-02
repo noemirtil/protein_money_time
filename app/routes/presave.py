@@ -27,7 +27,7 @@ def get_brand_id(db, brand_name):
     SELECT id FROM brands
     WHERE name = %s
     """
-    return db.execute(query, (brand_name,)).fetchone()
+    return db.execute(query, (brand_name,)).fetchone()["id"]
 
 
 def get_products(db):
