@@ -1,4 +1,4 @@
-# Protein Money Time 🍽️
+# Protein 💪 Money 💰 Time ⏱️
 
 A Flask web application that helps users find and upload products based on their nutritional value, price, and cooking time. Built with Python, Flask, and PostgreSQL.
 
@@ -56,7 +56,7 @@ This recipe recommendation app allows users to:
 If `requirements.txt` doesn't exist yet, install manually:
 
     ```bash
-    pip install flask flask-wtf flask-login python-dotenv psycopg2-binary
+    pip install flask flask-wtf flask-login python-dotenv psycopg
     ```
 
 ### 4. Configure Environment Variables
@@ -65,32 +65,26 @@ Create a `.env` file in the root directory:
 
     ```bash
     SECRET_KEY=your-secret-key-here
-    DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+    # Example for a secure cloud connection (recommended)
+    # DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
+    # Example for a local/unsecured connection
+    DATABASE_URL=postgresql://user:password@localhost:5432/database_name
     ```
 
-**Get your DATABASE_URL from Neon:**
+Database Setup: The database schema (app/db/schema.sql) must be executed against your PostgreSQL instance manually before running the application.
 
-1. Go to [neon.tech](https://neon.tech/)
-2. Sign in and select your project
-3. Copy the connection string from the dashboard
-4. Paste it into your `.env` file
+Database Connection String:
 
-### 5. Initialize Database
+Obtain the connection string (URL) for your PostgreSQL database from your provider or local setup.
 
-    ```bash
-    flask init-db
-    ```
+Ensure the URL is correctly formatted for use with psycopg.
 
-This command will:
+Paste it into your .env file as the DATABASE_URL.
 
-- Connect to your PostgreSQL database
-- Drop existing tables (if any)
-- Create fresh tables from `app/db/schema.sql`
-
-### 6. Run the Application
+### 5. Run the Application
 
     ```bash
-    python run.py
+    python app.py
     ```
 
 The app will be available at: `http://localhost:5000`
@@ -122,7 +116,7 @@ The app will be available at: `http://localhost:5000`
     │       ├── css/
     │       └── js/
     ├── config.py                 # Configuration settings
-    ├── run.py                    # Application entry point
+    ├── app.py                    # Application entry point
     ├── .env                      # Environment variables (not in git)
     ├── .gitignore
     ├── requirements.txt
@@ -141,26 +135,29 @@ Visit these test routes to verify your setup:
 ## 📝 Available Flask Commands
 
     ```bash
-    # Initialize/reset database
-    flask init-db
-
     # Run development server
     python run.py
     ```
 
 ## 🔑 Database Schema
 
-Currently implemented tables:
+    - Currently implemented tables:
 
-### Users Table
+    - users (User authentication and contributions)
 
-- `id` (SERIAL, PRIMARY KEY)
-- `username` (VARCHAR(32), UNIQUE)
-- `email` (VARCHAR(320))
-- `password` (VARCHAR(64), hashed)
-- `contributions` (INTEGER)
+    - brands (Product manufacturers)
 
-*More tables (products, brands, stores, prices, currencies) will be added as the project develops.*
+    - products (Nutritional information per 100g)
+
+    - currencies (ISO 4217 codes)
+
+    - countries (Country names)
+
+    - junction_currency_country (Many-to-many link)
+
+    - stores (Locations where prices were observed)
+
+    - prices (Price, weight, and date data)
 
 ## 🌿 Git Workflow
 
@@ -192,32 +189,29 @@ Currently implemented tables:
 - [Flask Documentation](https://flask.palletsprojects.com/)
 - [Flask-Login Docs](https://flask-login.readthedocs.io/)
 - [PostgreSQL Tutorial](https://www.postgresql.org/docs/)
-- [Neon Docs](https://neon.tech/docs)
 
 ## 🐛 Troubleshooting
 
 ### Database connection issues
 
-- Verify your `.env` file has the correct DATABASE_URL
-- Check that Neon database is active (free tier may sleep)
-- Ensure `sslmode=require` is in your connection string
+- Verify your .env file has the correct DATABASE_URL format.
 
-### "relation does not exist" errors
+- Check that your PostgreSQL database server is running and accessible.
 
-- Run `flask init-db` to create tables
-- Check that `schema.sql` has no commented-out DROP statements
+- If connecting to a cloud database, ensure you have the correct host, port, credentials, and sslmode=require if necessary.
+
+- Ensure you have manually run schema.sql against your database.
 
 ### Import errors
 
 - Activate your virtual environment
-- Run `pip install -r requirements.txt`
+
+- Run pip install -r requirements.txt
 
 ## 📄 License
 
 This project is for educational purposes as part of a Full Stack Development bootcamp.
 
----
+Status: 🚧 In Development
 
-**Status:** 🚧 In Development
-
-**Last Updated:** November 2025
+Last Updated: November 2025

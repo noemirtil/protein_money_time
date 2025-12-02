@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS "countries" CASCADE;
 DROP TABLE IF EXISTS "junction_currency_country" CASCADE;
 DROP TABLE IF EXISTS "stores" CASCADE;
 DROP TABLE IF EXISTS "prices" CASCADE;
+DROP TABLE IF EXISTS "presaved_products" CASCADE;
+DROP TABLE IF EXISTS "presaved_prices" CASCADE;
 
 -- Represent every user registered in the platform
 -- Count the number of its contributions to show in their profile
@@ -25,14 +27,19 @@ CREATE TABLE "brands" (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR(64) NOT NULL UNIQUE,
     "website" VARCHAR(2048) NOT NULL UNIQUE,
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
--- Create a function to mark as discontinued a product
+-- Create a function to mark products as discontinued for a specific brand
 CREATE OR REPLACE FUNCTION discontinue_product()
 RETURNS TRIGGER AS $discontinue_product$
     BEGIN
-        UPDATE "products" SET "discontinued" = 'true';
+        -- Update products belonging to the brand that was marked inactive
+        UPDATE "products"
+        SET "discontinued" = 'true'
+        WHERE "brand_id" = NEW."id";
+        RETURN NEW;
     END;
 $discontinue_product$ LANGUAGE plpgsql;
 
@@ -40,30 +47,31 @@ $discontinue_product$ LANGUAGE plpgsql;
 CREATE OR REPLACE TRIGGER "inactive_brand"
 AFTER UPDATE OF "inactive" ON "brands"
 FOR EACH ROW
-WHEN (OLD."inactive" = 'true')
+-- Trigger only fires when a brand is being marked inactive (not when it's already inactive):
+WHEN (NEW."inactive" = 'true' AND OLD."inactive" = 'false')
 EXECUTE FUNCTION discontinue_product();
 -- in case a brand is reactivated,its products won't automatically be marked as 'reintroduced'
 
 
--- Represent any product (ingredient or ready-made), with nutriments
--- /opt/homebrew/bin/createuser per 100g in order to calculate for each recipe
+-- Represent any product (ingredient or ready-made), with nutriments per 100g in order to calculate for each recipe
 CREATE TABLE "products" (
     "id" SERIAL PRIMARY KEY,
     "off_code" BIGINT UNIQUE, -- Open Food Facts database code
-    "url" VARCHAR(2048) NOT NULL UNIQUE,
+    "url" VARCHAR(2048) NOT NULL,
     "name" VARCHAR(320) NOT NULL,
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
-    "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
-    "energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
+    "energy" SMALLINT CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
+    "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "fat" REAL NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
     "sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
     "carbs" REAL NOT NULL CHECK ("carbs" BETWEEN 0 AND 100), -- for 100g
     "sugars" REAL CHECK ("sugars" BETWEEN 0 AND 100), -- for 100g
     "fiber" REAL CHECK ("fiber" BETWEEN 0 AND 100), -- for 100g
-    "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "sodium" REAL CHECK ("sodium" BETWEEN 0 AND 100), -- for 100g
     "c_vitamin" REAL CHECK ("c_vitamin" BETWEEN 0 AND 100), -- for 100g
     "nutr_score_fr" SMALLINT CHECK ("nutr_score_fr" BETWEEN -20 AND 50), -- https://en.wikipedia.org/wiki/Nutri-Score
+    "ingredients_text" TEXT NOT NULL, -- can be only one ingredient if it is a simple ingredient
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "discontinued" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -95,6 +103,7 @@ CREATE TABLE "stores" (
     -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
     "country_id" INT REFERENCES "countries", -- can be null for online stores
     "website" VARCHAR(2048) UNIQUE, -- can be null for physical stores
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -107,11 +116,125 @@ CREATE TABLE "prices" (
     "date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "price" SMALLINT NOT NULL CHECK ("price" >= 0), -- in cents per packaging
     "weight" INT CHECK ("weight" >= 0), -- packaging size in grams
+    -- Weight OR quantity
     "quantity" INT CHECK ("quantity" >= 0), -- packaging size in units
     -- "product_pic_file" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
     -- "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
     "currency_id" SMALLINT NOT NULL REFERENCES "currencies",
-    "author_id" INT NOT NULL REFERENCES "users", -- user who uploaded the data
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "comment" VARCHAR(2048),
     "deleted" BOOLEAN NOT NULL DEFAULT 'false'
+);
+
+-- Pre-saved products
+CREATE TABLE "presaved_products" (
+    "id" SERIAL PRIMARY KEY,
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
+    "product_url" VARCHAR(2048) UNIQUE,
+    "product_name" VARCHAR(320) NOT NULL UNIQUE,
+    "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
+    "brand_name" VARCHAR(64),
+    "brand_website" VARCHAR(2048),
+    "product_energy" SMALLINT CHECK ("product_energy" BETWEEN 0 AND 5000), -- for 100g
+    "product_protein" REAL CHECK ("product_protein" BETWEEN 0 AND 100), -- for 100g
+    "product_fat" REAL CHECK ("product_fat" BETWEEN 0 AND 100), -- for 100g
+    "product_sat_fat" REAL CHECK ("product_sat_fat" BETWEEN 0 AND 100), -- for 100g
+    "product_carbs" REAL CHECK ("product_carbs" BETWEEN 0 AND 100), -- for 100g
+    "product_sugars" REAL CHECK ("product_sugars" BETWEEN 0 AND 100), -- for 100g
+    "product_fiber" REAL CHECK ("product_fiber" BETWEEN 0 AND 100), -- for 100g
+    "product_sodium" REAL CHECK ("product_sodium" BETWEEN 0 AND 100), -- for 100g
+    "product_c_vitamin" REAL CHECK ("product_c_vitamin" BETWEEN 0 AND 100), -- for 100g
+    "product_ingredients" TEXT, -- can be only one ingredient if it is a simple ingredient
+    "creation_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "completed" BOOLEAN NOT NULL DEFAULT 'false'
+);
+
+CREATE OR REPLACE FUNCTION complete_and_insert_product()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Only auto-complete and insert for new/updated rows with required data
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        IF NEW.product_url IS NOT NULL
+           AND NEW.product_name IS NOT NULL
+           AND NEW.product_protein IS NOT NULL
+           AND NEW.product_fat IS NOT NULL
+           AND NEW.product_carbs IS NOT NULL
+           AND NEW.product_ingredients IS NOT NULL THEN
+
+            NEW.completed = true;
+
+            -- Insert into products
+            INSERT INTO products (
+                url, name, brand_id, energy, protein, fat, sat_fat, carbs,
+                sugars, fiber, sodium, c_vitamin, ingredients_text, author_id
+            ) VALUES (
+                NEW.product_url, NEW.product_name, NEW.brand_id,
+                NEW.product_energy, NEW.product_protein, NEW.product_fat,
+                NEW.product_sat_fat, NEW.product_carbs, NEW.product_sugars,
+                NEW.product_fiber, NEW.product_sodium, NEW.product_c_vitamin,
+                NEW.product_ingredients, NEW.author_id
+            );
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER complete_product_trigger
+    BEFORE INSERT OR UPDATE ON presaved_products
+    FOR EACH ROW
+    EXECUTE FUNCTION complete_and_insert_product();
+
+
+
+
+
+-- Create a function to insert a brand
+CREATE OR REPLACE FUNCTION insert_brand()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Insert brand record if the brand doesn't already exist
+    IF NOT EXISTS (
+        SELECT 1 FROM brands WHERE name = NEW.brand_name
+    ) THEN
+        INSERT INTO brands ("name", website, author_id)
+        VALUES (NEW.brand_name, NEW.brand_website, NEW.author_id);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger to call insert_brand() if presaved_products holds both brand_name and brand_website
+CREATE TRIGGER insert_presaved_brands
+AFTER INSERT OR UPDATE ON presaved_products
+FOR EACH ROW
+WHEN (NEW.brand_name IS NOT NULL AND NEW.brand_website IS NOT NULL AND NEW.brand_id IS NULL)
+EXECUTE FUNCTION insert_brand();
+
+
+-- incomplete_prices
+CREATE TABLE "presaved_prices" (
+    "id" SERIAL PRIMARY KEY,
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
+    "product_id" INT NOT NULL REFERENCES "products",
+    -- WARNING references an incomplete product or a complete product!!! ???????
+    "store_id" INT REFERENCES "stores",
+    -- WARNING references an incomplete store or a complete store!!! ???????
+    "store_name" VARCHAR(64) NOT NULL,
+    "store_website" VARCHAR(2048),
+    "store_address" VARCHAR(2048),
+    -- "long_lat" geography(point), -- longitude first then latitude, example: 'POINT(-118.4079 33.9434)'
+    -- To use it, you must first install the PostGIS extension and then create a table with a geography(point) column, using functions like ST_GeogFromText to insert data
+    "country_id" INT REFERENCES "countries",
+    "price_date" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "product_price" SMALLINT NOT NULL CHECK ("product_price" >= 0), -- in cents per packaging
+    "product_weight" INT CHECK ("product_weight" >= 0), -- packaging size in grams
+    -- Weight OR quantity
+    "product_quantity" INT CHECK ("product_quantity" >= 0), -- packaging size in units
+    -- "product_pic_file" bytea, -- https://www.postgresql.org/docs/7.4/jdbc-binary-data.html
+    -- "product_pic_url" VARCHAR(2048) DEFAULT 'https://pix.org/no_pic.png', -- https://prices.openfoodfacts.org/api/docs
+    "currency_id" SMALLINT NOT NULL REFERENCES "currencies",
+    "comment" VARCHAR(2048),
+    "completed" BOOLEAN NOT NULL DEFAULT 'false'
 );
