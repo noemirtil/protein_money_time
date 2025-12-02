@@ -8,10 +8,18 @@ presave_bp = Blueprint("presave", __name__)
 def get_presaved(db, author_id):
     query = """
     SELECT * FROM presaved_products
-    WHERE author_id = %s
+    WHERE author_id = %s AND completed = False
     ORDER BY presaved_products.creation_date DESC
     """
     return db.execute(query, (author_id,)).fetchall()
+
+
+def completed_presaved(db, author_id):
+    query = """
+    SELECT COUNT(*) FROM PRESAVED_PRODUCTS
+    WHERE author_id = %s AND completed = true
+    """
+    return db.execute(query, (author_id,)).fetchone()
 
 
 def get_brands(db):
@@ -74,6 +82,7 @@ def presave():
     db = get_db()
     author_id = current_user.id
     presaved = get_presaved(db, author_id)
+    completed = completed_presaved(db, author_id)
     brands = get_brands(db)
     products = get_products(db)
     old_new_brand = "both"
@@ -114,6 +123,7 @@ def presave():
                 products=products,
                 brands=brands,
                 presaved=presaved,
+                completed=completed,
                 old_new_brand=old_new_brand,
             )
 
@@ -198,6 +208,7 @@ def presave():
         products=products,
         brands=brands,
         presaved=presaved,
+        completed=completed,
         old_new_brand=old_new_brand,
     )
 
