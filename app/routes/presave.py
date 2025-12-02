@@ -221,7 +221,8 @@ def edit():
     if request.method == "POST":
         presaved_id = request.form["edit_id"]
         presaved_edit = db.execute(
-            "SELECT * FROM presaved_products WHERE id = %s", (presaved_id,)
+            "SELECT * FROM presaved_products WHERE id = %s ORDER BY creation_date DESC",
+            (presaved_id,),
         ).fetchall()
     brands = get_brands(db)
     products = get_products(db)

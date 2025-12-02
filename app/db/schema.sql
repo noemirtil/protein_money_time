@@ -60,7 +60,7 @@ CREATE TABLE "products" (
     "url" VARCHAR(2048) NOT NULL,
     "name" VARCHAR(320) NOT NULL,
     "brand_id" INT REFERENCES "brands", -- can be null if it is a simple ingredient
-    "energy" SMALLINT NOT NULL CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
+    "energy" SMALLINT CHECK ("energy" BETWEEN 0 AND 5000), -- for 100g
     "protein" REAL NOT NULL CHECK ("protein" BETWEEN 0 AND 100), -- for 100g
     "fat" REAL NOT NULL CHECK ("fat" BETWEEN 0 AND 100), -- for 100g
     "sat_fat" REAL CHECK ("sat_fat" BETWEEN 0 AND 100), -- for 100g
@@ -149,78 +149,45 @@ CREATE TABLE "presaved_products" (
     "completed" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
--- Create a function to insert a product into the products table
-CREATE OR REPLACE FUNCTION insert_product()
-RETURNS TRIGGER AS $insert_product$
-    BEGIN
-        INSERT INTO "products" (
-            "url",
-            "name",
-            "brand_id",
-            "energy",
-            "protein",
-            "fat",
-            "sat_fat",
-            "carbs",
-            "sugars",
-            "fiber",
-            "sodium",
-            "c_vitamin",
-            "ingredients_text",
-            "author_id"
-        )
-        VALUES (
-            NEW."product_url",
-            NEW."product_name",
-            NEW."brand_id",
-            NEW."product_energy",
-            NEW."product_protein",
-            NEW."product_fat",
-            NEW."product_sat_fat",
-            NEW."product_carbs",
-            NEW."product_sugars",
-            NEW."product_fiber",
-            NEW."product_sodium",
-            NEW."product_c_vitamin",
-            NEW."product_ingredients",
-            NEW."author_id"
-        );
+CREATE OR REPLACE FUNCTION complete_and_insert_product()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Only auto-complete and insert for new/updated rows with required data
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        IF NEW.product_url IS NOT NULL
+           AND NEW.product_name IS NOT NULL
+           AND NEW.product_protein IS NOT NULL
+           AND NEW.product_fat IS NOT NULL
+           AND NEW.product_carbs IS NOT NULL
+           AND NEW.product_ingredients IS NOT NULL THEN
 
-        RETURN NEW;
-    END;
-$insert_product$ LANGUAGE plpgsql;
+            NEW.completed = true;
 
--- Create a trigger to call insert_product() when an presaved_products entry is being marked as "completed"
-CREATE OR REPLACE TRIGGER "insert_presaved_products"
-AFTER UPDATE OF "completed" ON "presaved_products"
-FOR EACH ROW
--- The trigger only fires when a product is being marked completed (not when it was already completed):
-WHEN (NEW."completed" = 'true' AND OLD."completed" = 'false')
-EXECUTE FUNCTION insert_product();
--- Create a function to mark incomplete_product as completed
-CREATE OR REPLACE FUNCTION mark_presaved_as_completed()
-RETURNS TRIGGER AS $mark_presaved_as_completed$
-    BEGIN
-        IF NEW."product_url" IS NOT NULL
-            AND NEW."product_name" IS NOT NULL
-            AND NEW."product_energy" IS NOT NULL
-            AND NEW."product_protein" IS NOT NULL
-            AND NEW."product_fat" IS NOT NULL
-            AND NEW."product_carbs" IS NOT NULL
-            AND NEW."product_ingredients" IS NOT NULL
-        THEN
-            NEW."completed" = 'true';
+            -- Insert into products
+            INSERT INTO products (
+                url, name, brand_id, energy, protein, fat, sat_fat, carbs,
+                sugars, fiber, sodium, c_vitamin, ingredients_text, author_id
+            ) VALUES (
+                NEW.product_url, NEW.product_name, NEW.brand_id,
+                NEW.product_energy, NEW.product_protein, NEW.product_fat,
+                NEW.product_sat_fat, NEW.product_carbs, NEW.product_sugars,
+                NEW.product_fiber, NEW.product_sodium, NEW.product_c_vitamin,
+                NEW.product_ingredients, NEW.author_id
+            );
         END IF;
-        RETURN NEW;
-    END;
-$mark_presaved_as_completed$ LANGUAGE plpgsql;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
--- Create a trigger to check completeness and mark "completed" as true
--- BEFORE inser/update, so that both operations are executed at the same time
-CREATE OR REPLACE TRIGGER "check_completeness"
-BEFORE INSERT OR UPDATE ON "presaved_products"
-FOR EACH ROW
-EXECUTE FUNCTION mark_presaved_as_completed();
+CREATE TRIGGER complete_product_trigger
+    BEFORE INSERT OR UPDATE ON presaved_products
+    FOR EACH ROW
+    EXECUTE FUNCTION complete_and_insert_product();
+
+
+
+
 
 -- Create a function to insert a brand
 CREATE OR REPLACE FUNCTION insert_brand()
