@@ -221,6 +221,30 @@ BEFORE INSERT OR UPDATE ON "presaved_products"
 FOR EACH ROW
 EXECUTE FUNCTION mark_presaved_as_completed();
 
+
+CREATE OR REPLACE FUNCTION insert_brand()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Insert brand record if the brand doesn't already exist
+    IF NOT EXISTS (
+        SELECT 1 FROM brands WHERE name = NEW.brand_name
+    ) THEN
+        INSERT INTO brands (name, website)
+        VALUES (NEW.brand_name, NEW.brand_website);
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER insert_presaved_brands
+AFTER INSERT OR UPDATE ON presaved_products
+FOR EACH ROW
+WHEN (NEW.brand_name IS NOT NULL AND NEW.brand_website IS NOT NULL)
+EXECUTE FUNCTION insert_brand();
+
+
 -- incomplete_prices
 CREATE TABLE "presaved_prices" (
     "id" SERIAL PRIMARY KEY,
@@ -246,4 +270,3 @@ CREATE TABLE "presaved_prices" (
     "comment" VARCHAR(2048),
     "completed" BOOLEAN NOT NULL DEFAULT 'false'
 );
-

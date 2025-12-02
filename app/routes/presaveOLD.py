@@ -5,32 +5,163 @@ from app.db.connection import get_db
 presave_bp = Blueprint("presave", __name__)
 
 
-def get_presaved(db, author_id):
+@presave_bp.route("/presave", methods=("GET", "POST"))
+@login_required
+def presave():
+    db = get_db()
+    cur = db.cursor()
+    brands = cur.execute(get_brands()).fetchall()
+    products = cur.execute(get_products()).fetchall()
+    author_id = current_user.id
+    presaved = cur.execute(get_presaved(), (author_id,)).fetchall()
+
+    if request.method == "POST":
+        # Required field
+        product_name = (request.form.get("product_name") or "").strip()
+
+        # Optional fields: normalize empty to None
+        def opt(name):
+            val = request.form.get(name)
+            val = val.strip() if val is not None else None
+            return val or None
+
+        product_url = opt("product_url")
+        brand_id = "1"
+        brand_name = "temp"
+        brand_website = opt("brand_website")
+        product_ingredients = opt("product_ingredients")
+        product_energy = opt("product_energy")
+        product_protein = opt("product_protein")
+        product_fat = opt("product_fat")
+        product_sat_fat = opt("product_sat_fat")
+        product_carbs = opt("product_carbs")
+        product_sugars = opt("product_sugars")
+        product_fiber = opt("product_fiber")
+        product_sodium = opt("product_sodium")
+        product_c_vitamin = opt("product_c_vitamin")
+
+        message = None
+        if not product_name:
+            message = "Product name is required."
+
+        if message is not None:
+            flash(message)
+
+        for row in presaved:
+            if product_name == row["product_name"]:
+                presaved_id = row["id"] if row["id"] is not None else None
+                db.execute(
+                    "UPDATE presaved_products SET (author_id, product_name, product_url, brand_id, brand_name, brand_website, product_ingredients, product_energy, product_protein, product_fat, product_sat_fat, product_carbs, product_sugars, product_fiber, product_sodium, product_c_vitamin) = (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) WHERE id = %s",
+                    (
+                        author_id,
+                        product_name,
+                        product_url,
+                        brand_id,
+                        brand_name,
+                        brand_website,
+                        product_ingredients,
+                        product_energy,
+                        product_protein,
+                        product_fat,
+                        product_sat_fat,
+                        product_carbs,
+                        product_sugars,
+                        product_fiber,
+                        product_sodium,
+                        product_c_vitamin,
+                        presaved_id,
+                    ),
+                )
+                db.commit()
+                message = "Successfully UPDATED pre-saved product data, please complete missing data ASAP"
+                flash(message)
+
+                return redirect(url_for("presave.presave"))
+
+        print("======================== ELSE =====================")
+        # print(row["product_name"])
+        db.execute(
+            """
+            INSERT INTO presaved_products (
+                author_id, product_name, product_url, brand_id, brand_name,
+                brand_website, product_ingredients, product_energy, product_protein,
+                product_fat, product_sat_fat, product_carbs, product_sugars,
+                product_fiber, product_sodium, product_c_vitamin
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                author_id,
+                product_name,
+                product_url,
+                brand_id,
+                brand_name,
+                brand_website,
+                product_ingredients,
+                product_energy,
+                product_protein,
+                product_fat,
+                product_sat_fat,
+                product_carbs,
+                product_sugars,
+                product_fiber,
+                product_sodium,
+                product_c_vitamin,
+            ),
+        )
+
+        db.commit()
+        message = "Successfully INSERTED pre-saved product data, please complete missing data ASAP"
+        flash(message)
+
+        return redirect(url_for("presave.presave"))
+
+    return render_template(
+        "main/presave.html", products=products, brands=brands, presaved=presaved
+    )
+
+
+@presave_bp.route("/presave/delete", methods=("GET", "POST"))
+@login_required
+def delete():
+    db = get_db()
+    if request.method == "POST":
+        delete_id = request.form["delete_id"]
+        db.execute("DELETE FROM presaved_products WHERE id = %s", (delete_id,))
+        db.commit()
+    return redirect(url_for("presave.presave"))
+
+
+@presave_bp.route("/presave/edit", methods=("GET", "POST"))
+@login_required
+def edit():
+    db = get_db()
+    if request.method == "POST":
+        presaved_id = request.form["edit_id"]
+        presaved_edit = db.execute(
+            "SELECT * FROM presaved_products WHERE id = %s", (presaved_id,)
+        ).fetchall()
+    return render_template("main/presave.html", presaved_edit=presaved_edit)
+
+
+def get_presaved():
     query = """
     SELECT * FROM presaved_products
     WHERE author_id = %s
     ORDER BY presaved_products.creation_date DESC
-    """
-    return db.execute(query, (author_id,)).fetchall()
+"""
+    return query
 
 
-def get_brands(db):
+def get_brands():
     query = """
     SELECT * FROM brands
     ORDER BY brands.name
-    """
-    return db.execute(query).fetchall()
+"""
+    return query
 
 
-def get_brand_id(db, brand_name):
-    query = """
-    SELECT id FROM brands
-    WHERE name = %s
-    """
-    return db.execute(query, (brand_name,)).fetchone()
-
-
-def get_products(db):
+def get_products():
     query = """
     SELECT
         products.id,
@@ -63,158 +194,5 @@ def get_products(db):
     LEFT JOIN countries ON stores.country_id = countries.id
     LEFT JOIN currencies ON prices.currency_id = currencies.id
     ORDER BY products.name
-    """
-    return db.execute(query).fetchall()
-
-
-@presave_bp.route("/presave", methods=("GET", "POST"))
-@login_required
-def presave():
-    db = get_db()
-    author_id = current_user.id
-    presaved = get_presaved(db, author_id)
-    brands = get_brands(db)
-    products = get_products(db)
-
-    if request.method == "POST":
-
-        def opt(name):
-            val = request.form.get(name)
-            val = val.strip() if val else None
-            return val or None
-
-        product_name = (request.form.get("product_name") or "").strip()
-        product_url = opt("product_url")
-        brand_name = opt("old_brand_name") or opt("new_brand_name")
-        brand_id = get_brand_id(db, brand_name)
-        brand_website = opt("brand_website")
-        product_ingredients = opt("product_ingredients")
-        product_energy = opt("product_energy")
-        product_protein = opt("product_protein")
-        product_fat = opt("product_fat")
-        product_sat_fat = opt("product_sat_fat")
-        product_carbs = opt("product_carbs")
-        product_sugars = opt("product_sugars")
-        product_fiber = opt("product_fiber")
-        product_sodium = opt("product_sodium")
-        product_c_vitamin = opt("product_c_vitamin")
-
-        if not product_name:
-            flash("Product name is required.")
-            return render_template(
-                "main/presave.html", products=products, brands=brands, presaved=presaved
-            )
-
-        # Check if product with same name already presaved and update
-        for row in presaved:
-            if product_name == row["product_name"]:
-                presaved_id = row["id"]
-                db.execute(
-                    """
-                    UPDATE presaved_products SET
-                        author_id=%s, product_name=%s, product_url=%s, brand_id=%s,
-                        brand_name=%s, brand_website=%s, product_ingredients=%s,
-                        product_energy=%s, product_protein=%s, product_fat=%s,
-                        product_sat_fat=%s, product_carbs=%s, product_sugars=%s,
-                        product_fiber=%s, product_sodium=%s, product_c_vitamin=%s
-                    WHERE id = %s
-                    """,
-                    (
-                        author_id,
-                        product_name,
-                        product_url,
-                        brand_id,
-                        brand_name,
-                        brand_website,
-                        product_ingredients,
-                        product_energy,
-                        product_protein,
-                        product_fat,
-                        product_sat_fat,
-                        product_carbs,
-                        product_sugars,
-                        product_fiber,
-                        product_sodium,
-                        product_c_vitamin,
-                        presaved_id,
-                    ),
-                )
-                db.commit()
-                flash(
-                    "Successfully UPDATED pre-saved product data, please complete missing data ASAP"
-                )
-                return redirect(url_for("presave.presave"))
-
-        # Insert new presaved product
-        db.execute(
-            """
-            INSERT INTO presaved_products (
-                author_id, product_name, product_url, brand_id, brand_name,
-                brand_website, product_ingredients, product_energy, product_protein,
-                product_fat, product_sat_fat, product_carbs, product_sugars,
-                product_fiber, product_sodium, product_c_vitamin
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                author_id,
-                product_name,
-                product_url,
-                brand_id,
-                brand_name,
-                brand_website,
-                product_ingredients,
-                product_energy,
-                product_protein,
-                product_fat,
-                product_sat_fat,
-                product_carbs,
-                product_sugars,
-                product_fiber,
-                product_sodium,
-                product_c_vitamin,
-            ),
-        )
-        db.commit()
-        flash(
-            "Successfully INSERTED pre-saved product data, please complete missing data ASAP"
-        )
-        return redirect(url_for("presave.presave"))
-
-    return render_template(
-        "main/presave.html", products=products, brands=brands, presaved=presaved
-    )
-
-
-@presave_bp.route("/presave/delete", methods=("GET", "POST"))
-@login_required
-def delete():
-    db = get_db()
-    if request.method == "POST":
-        delete_id = request.form["delete_id"]
-        db.execute("DELETE FROM presaved_products WHERE id = %s", (delete_id,))
-        db.commit()
-    return redirect(url_for("presave.presave"))
-
-
-@presave_bp.route("/presave/edit", methods=("GET", "POST"))
-@login_required
-def edit():
-    db = get_db()
-    presaved_edit = []
-    if request.method == "POST":
-        presaved_id = request.form["edit_id"]
-        presaved_edit = db.execute(
-            "SELECT * FROM presaved_products WHERE id = %s", (presaved_id,)
-        ).fetchall()
-    brands = get_brands(db)
-    products = get_products(db)
-    author_id = current_user.id
-    presaved = get_presaved(db, author_id)
-    return render_template(
-        "main/presave.html",
-        presaved_edit=presaved_edit,
-        products=products,
-        brands=brands,
-        presaved=presaved,
-    )
+        """
+    return query
