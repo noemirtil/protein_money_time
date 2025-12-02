@@ -1,0 +1,17 @@
+[project]
+name = "pmt"
+version = "0.0.1"
+description = "A tool to compare food, focused on protein, money and time"
+dependencies = ["flask"]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+# Some extra configuration, which is not required but makes running tests with coverage less verbose
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["pmt"]
