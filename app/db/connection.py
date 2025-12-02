@@ -34,6 +34,7 @@ def get_database_url():
         else:
             return "dbname=pmt"
 
+
 def get_db():
     if "db" not in g:
         try:

@@ -1,4 +1,4 @@
-# Protein Money Time 🍽️
+# Protein 💪 Money 💰 Time ⏱️
 
 A Flask web application that helps users find and upload products based on their nutritional value, price, and cooking time. Built with Python, Flask, and PostgreSQL.
 

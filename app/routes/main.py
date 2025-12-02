@@ -2,13 +2,14 @@ from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
 from app.db.connection import get_db
 
-main_bp = Blueprint('main', __name__)
+main_bp = Blueprint("main", __name__)
+
 
 def _assign_nutriscore_data(score):
     """Calculate Nutri-Score letter and color from score"""
     if score is None:
         return None, None
-    
+
     try:
         score = float(score)
     except (ValueError, TypeError):
@@ -16,26 +17,27 @@ def _assign_nutriscore_data(score):
 
     # E: 19 to 40+
     if score >= 19:
-        return 'E', 'red'
+        return "E", "red"
     # D: 11 to 18
     elif score >= 11:
-        return 'D', 'orange'
+        return "D", "orange"
     # C: 3 to 10
     elif score >= 3:
-        return 'C', 'yellow'
+        return "C", "yellow"
     # B: 0 to 2
     elif score >= 0:
-        return 'B', 'lime'
+        return "B", "lime"
     # A: -15 to -1
-    elif score >= -15: 
-        return 'A', 'green'
+    elif score >= -15:
+        return "A", "green"
     # Fallback for unexpected scores below -15
-    return 'A', 'green'
+    return "A", "green"
 
-def _get_products(cur, limit, offset, sort_column='protein', **kwargs):
+
+def _get_products(cur, limit, offset, sort_column="protein", **kwargs):
     """
     Flexible product query with optional filters
-    
+
     Args:
         cur: Database cursor
         limit: Number of results
@@ -70,43 +72,46 @@ def _get_products(cur, limit, offset, sort_column='protein', **kwargs):
         LEFT JOIN countries c ON s.country_id = c.id
         LEFT JOIN currencies curr ON pr.currency_id = curr.id
     """
-    
+
     conditions = []
     params = []
-    
+
     # Add search keyword filter
-    if 'keyword' in kwargs and kwargs['keyword']:
-        keyword = kwargs['keyword']
-        conditions.append("""
+    if "keyword" in kwargs and kwargs["keyword"]:
+        keyword = kwargs["keyword"]
+        conditions.append(
+            """
             (p.name ILIKE %s OR b.name ILIKE %s OR s.name ILIKE %s)
-        """)
-        params.extend([f'%{keyword}%', f'%{keyword}%', f'%{keyword}%'])
-    
+        """
+        )
+        params.extend([f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"])
+
     # Add protein filter
-    if 'min_protein' in kwargs and kwargs['min_protein'] is not None:
+    if "min_protein" in kwargs and kwargs["min_protein"] is not None:
         conditions.append("p.protein >= %s")
-        params.append(kwargs['min_protein'])
-    
+        params.append(kwargs["min_protein"])
+
     # Add fat filter
-    if 'max_fat' in kwargs and kwargs['max_fat'] is not None:
+    if "max_fat" in kwargs and kwargs["max_fat"] is not None:
         conditions.append("p.fat <= %s")
-        params.append(kwargs['max_fat'])
-    
+        params.append(kwargs["max_fat"])
+
     # Add nutri-score filter
-    if 'nutri_score_max' in kwargs and kwargs['nutri_score_max'] is not None:
+    if "nutri_score_max" in kwargs and kwargs["nutri_score_max"] is not None:
         conditions.append("p.nutr_score_fr <= %s")
-        params.append(kwargs['nutri_score_max'])
-    
+        params.append(kwargs["nutri_score_max"])
+
     # Build WHERE clause
     if conditions:
         base_query += " WHERE " + " AND ".join(conditions)
-    
+
     # Add ordering and pagination
-    base_query += f" ORDER BY p.{sort_column} DESC NULLS LAST LIMIT %s OFFSET %s" # <-- USE f-string for dynamic column
+    base_query += f" ORDER BY p.{sort_column} DESC NULLS LAST LIMIT %s OFFSET %s"  # <-- USE f-string for dynamic column
     params.extend([limit, offset])
-    
+
     cur.execute(base_query, params)
     return cur.fetchall()
+
 
 def get_protein_score():
     # To look for the highest Protein Score cost-effective products
@@ -227,16 +232,17 @@ def get_c_vitamin_score():
         """
     return query
 
+
 def _get_api_products(cur, keyword, sort_by=None):
     """
     Fetches products based on keyword, with optional dynamic sorting (for AJAX).
-    
-    NOTE: This uses simplified SQL for quick completion. For production, you 
-    would need to copy the full price/brand joins from your score queries 
+
+    NOTE: This uses simplified SQL for quick completion. For production, you
+    would need to copy the full price/brand joins from your score queries
     and adjust the complex ORDER BY using a CASE statement or CTEs.
     """
-    limit = 100 # Keep the limit for API search
-    
+    limit = 100  # Keep the limit for API search
+
     # Base query (must match the columns your renderProducts expects)
     base_query = """
         SELECT
@@ -260,15 +266,15 @@ def _get_api_products(cur, keyword, sort_by=None):
         LEFT JOIN currencies curr ON pr.currency_id = curr.id
         WHERE (p.name ILIKE %s OR b.name ILIKE %s OR s.name ILIKE %s)
     """
-    
-    params = [f'%{keyword}%', f'%{keyword}%', f'%{keyword}%']
-    
+
+    params = [f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"]
+
     # Dynamic ORDER BY Logic
-    if sort_by == 'protein_value':
-        # NOTE: Using raw protein for simplicity. For complex score, you must 
+    if sort_by == "protein_value":
+        # NOTE: Using raw protein for simplicity. For complex score, you must
         # add the full score calculation here or use a CTE.
         order_clause = "ORDER BY p.protein DESC NULLS LAST"
-    elif sort_by == 'vitamin_c_value':
+    elif sort_by == "vitamin_c_value":
         order_clause = "ORDER BY p.c_vitamin DESC NULLS LAST"
     else:
         # Default API search sort (can be simple name match or the default protein)
@@ -280,76 +286,76 @@ def _get_api_products(cur, keyword, sort_by=None):
     cur.execute(final_query, params)
     return cur.fetchall()
 
+
 def _process_products(products):
     """Process products: add nutri-score letter/color"""
     processed = []
     for product_row in products:
         product = dict(product_row)
-        letter, color = _assign_nutriscore_data(product['nutr_score_fr'])
-        product['nutri_letter'] = letter
-        product['nutri_color'] = color
+        letter, color = _assign_nutriscore_data(product["nutr_score_fr"])
+        product["nutri_letter"] = letter
+        product["nutri_color"] = color
         processed.append(product)
     return processed
 
-@main_bp.route('/')
+
+@main_bp.route("/")
 def index():
     db = get_db()
     cur = db.cursor()
-    
-    page = request.args.get('page', 1, type=int)
+
+    page = request.args.get("page", 1, type=int)
     per_page = 12
     offset = (page - 1) * per_page
-    
-    sort_by = request.args.get('sort')
+
+    sort_by = request.args.get("sort")
     products = []
-    
-    simple_sort_column = 'protein'
-    
-    if sort_by == 'protein_value':
+
+    simple_sort_column = "protein"
+
+    if sort_by == "protein_value":
         sql_query = get_protein_score()
         cur.execute(sql_query, (per_page, offset))
         products = cur.fetchall()
-    elif sort_by == 'vitamin_c_value':
+    elif sort_by == "vitamin_c_value":
         sql_query = get_c_vitamin_score()
         cur.execute(sql_query, (per_page, offset))
         products = cur.fetchall()
     else:
         products = _get_products(cur, per_page, offset, sort_column=simple_sort_column)
-        
-    processed_products = _process_products(products)
-    
-    cur.execute("SELECT COUNT(*) as count FROM products")
-    total_products = cur.fetchone()['count']
-    total_pages = (total_products + per_page - 1) // per_page
-        
-    return render_template('main/index.html',
-                            products=processed_products,
-                            page=page,
-                            total_pages=total_pages,
-                            max=max,
-                            min=min)
 
-                        
-@main_bp.route('/api/search')
+    processed_products = _process_products(products)
+
+    cur.execute("SELECT COUNT(*) as count FROM products")
+    total_products = cur.fetchone()["count"]
+    total_pages = (total_products + per_page - 1) // per_page
+
+    return render_template(
+        "main/index.html",
+        products=processed_products,
+        page=page,
+        total_pages=total_pages,
+        max=max,
+        min=min,
+    )
+
+
+@main_bp.route("/api/search")
 def api_search():
     """API endpoint for dynamic search - returns JSON"""
     db = get_db()
     cur = db.cursor()
-    
-    keyword = request.args.get('keyword', '').strip()
+
+    keyword = request.args.get("keyword", "").strip()
     # 1. Read the sort parameter from the request
-    sort_by = request.args.get('sort') 
-    
+    sort_by = request.args.get("sort")
+
     if not keyword:
         # If there's no keyword, don't execute a search
-        return jsonify({'products': [], 'count': 0})
-    
+        return jsonify({"products": [], "count": 0})
+
     # Pass the sort_by parameter to a new helper function
-    products = _get_api_products(cur, keyword, sort_by) # New function call
+    products = _get_api_products(cur, keyword, sort_by)  # New function call
     processed_products = _process_products(products)
-    
-    return jsonify({
-        'products': processed_products,
-        'count': len(processed_products)
-    })
-    
+
+    return jsonify({"products": processed_products, "count": len(processed_products)})
