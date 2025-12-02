@@ -92,14 +92,14 @@ function renderProducts(products) {
                 ${product.sodium != null ? `
                 <div class="flex justify-between border-b border-gray-200 py-1">
                     <p class="text-base font-normal text-gray-700 ml-2">Sodium</p>
-                    <p class="text-base font-semibold text-right text-gray-700">${(product.sodium * 1000).toFixed(1)} mg</p>
+                    <p class="text-base font-semibold text-right text-gray-700">${(product.sodium).toFixed(2)} mg</p>
                 </div>
                 ` : ''}
 
                 ${product.c_vitamin != null ? `
                 <div class="flex justify-between py-1">
                     <p class="text-base font-normal text-gray-700 ml-2">Vitamin C</p>
-                    <p class="text-base font-semibold text-right text-gray-700">${(product.c_vitamin * 1000).toFixed(1)} mg</p>
+                    <p class="text-base font-semibold text-right text-gray-700">${(product.c_vitamin * 1000).toFixed(2)} mg</p>
                 </div>
                 ` : ''}
                 

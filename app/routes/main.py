@@ -235,52 +235,57 @@ def get_c_vitamin_score():
 
 def _get_api_products(cur, keyword, sort_by=None):
     """
-    Fetches products based on keyword, with optional dynamic sorting (for AJAX).
-
-    NOTE: This uses simplified SQL for quick completion. For production, you
-    would need to copy the full price/brand joins from your score queries
-    and adjust the complex ORDER BY using a CASE statement or CTEs.
+    Fetches products based on keyword, integrating score calculation for dynamic sorting.
     """
-    limit = 100  # Keep the limit for API search
-
-    # Base query (must match the columns your renderProducts expects)
+    limit = 100 
+    
+    # 1. Start with the SELECT statement from your specialized score queries
     base_query = """
         SELECT
-            p.id, p.name, p.energy, p.fat, p.sat_fat, p.sodium,
-            p.carbs, p.fiber, p.sugars, p.protein, p.c_vitamin,
-            p.nutr_score_fr, p.ingredients_text,
-            b.name as brand_name,
-            pr.price, pr.weight, pr.date as price_date,
-            s.name as store_name,
-            curr.currency_code
-        FROM products p
-        LEFT JOIN brands b ON p.brand_id = b.id
-        LEFT JOIN LATERAL (
-            SELECT price, weight, date, store_id, currency_id
-            FROM prices
-            WHERE product_id = p.id
-            ORDER BY date DESC
-            LIMIT 1
-        ) pr ON true
-        LEFT JOIN stores s ON pr.store_id = s.id
-        LEFT JOIN currencies curr ON pr.currency_id = curr.id
-        WHERE (p.name ILIKE %s OR b.name ILIKE %s OR s.name ILIKE %s)
+            products.id, products.name, products.energy, products.fat, products.sat_fat, products.sodium,
+            products.carbs, products.fiber, products.sugars, products.protein, products.c_vitamin,
+            products.nutr_score_fr, products.ingredients_text,
+            brands."name" AS brand_name,
+            prices.price * 0.01 AS price,
+            prices.weight,
+            prices."date" AS price_date,
+            stores."name" AS store_name,
+            currencies.currency_code,
+            -- CALCULATE BOTH SCORES HERE FOR DYNAMIC SORTING
+            CAST((products.protein / GREATEST(SUM(prices.weight * prices.price), 0.01))
+            / GREATEST(products.fat, 0.001) * 10000000 AS INT) AS protein_score,
+            CAST((products.c_vitamin / GREATEST(SUM(prices.weight * prices.price), 0.01))
+            / GREATEST(products.sodium, 0.001) * 1000000000 AS INT) AS c_vitamin_score
+        FROM products
+        LEFT JOIN prices ON prices.product_id = products.id
+        LEFT JOIN brands ON products.brand_id = brands.id
+        LEFT JOIN stores ON prices.store_id = stores.id
+        LEFT JOIN currencies ON prices.currency_id = currencies.id
+        
+        -- 2. Add the WHERE clause for keyword search
+        WHERE (products.name ILIKE %s OR brands.name ILIKE %s OR stores.name ILIKE %s)
     """
 
     params = [f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"]
 
-    # Dynamic ORDER BY Logic
+    # 3. Add the GROUP BY clause from your specialized queries
+    group_by_clause = """
+        GROUP BY products.id, products.name, products.energy, products.fat, products.sat_fat, products.sodium,
+        products.carbs, products.fiber, products.sugars, products.protein, products.c_vitamin,
+        products.nutr_score_fr, products.ingredients_text, brands."name", prices.price, prices.weight,
+        prices."date", stores."name", currencies.currency_code
+    """
+    
+    # 4. Dynamic ORDER BY Logic - using the calculated score aliases
     if sort_by == "protein_value":
-        # NOTE: Using raw protein for simplicity. For complex score, you must
-        # add the full score calculation here or use a CTE.
-        order_clause = "ORDER BY p.protein DESC NULLS LAST"
+        order_clause = "ORDER BY protein_score DESC NULLS LAST" # <-- Use calculated alias!
     elif sort_by == "vitamin_c_value":
-        order_clause = "ORDER BY p.c_vitamin DESC NULLS LAST"
+        order_clause = "ORDER BY c_vitamin_score DESC NULLS LAST" # <-- Use calculated alias!
     else:
-        # Default API search sort (can be simple name match or the default protein)
-        order_clause = "ORDER BY p.protein DESC NULLS LAST"
+        # Default API search sort (raw protein)
+        order_clause = "ORDER BY products.protein DESC NULLS LAST"
 
-    final_query = f"{base_query} {order_clause} LIMIT %s"
+    final_query = f"{base_query} {group_by_clause} {order_clause} LIMIT %s"
     params.append(limit)
 
     cur.execute(final_query, params)
