@@ -42,6 +42,7 @@ App name
     </tr>
     {% endfor %}
 </table>
+<h2>Or pre-save a NEW PRODUCT:</h2>
 <br>
 {% endif %}
 
@@ -56,6 +57,7 @@ App name
         <input autocomplete="off" type="text" id="product_url" name="product_url"
             value="{{ (presaved_edit[0].product_url if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
 
+        {% if old_new_brand in ['old', 'both'] or not old_new_brand %}
         <label for="old_brand_name">Search for an existing Brand:</label>
         <input type="text" list="old_brand_name" name="old_brand_name"
             value="{{ (presaved_edit[0].brand_name if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
@@ -64,7 +66,14 @@ App name
             <option value="{{ brand.name }}">{{ brand.website }}</option>
             {% endfor %}
         </datalist>
+        {% endif %}
 
+        <input type="radio" name="old_new_brand" id="old" value="old">
+        <label for="old"> Existing brand </label>
+        <input type="radio" name="old_new_brand" id="new" value="new">
+        <label for="old"> NEW brand </label><br><br>
+
+        {% if old_new_brand in ['new', 'both'] or not old_new_brand %}
         <h2 class="green">If the brand doesn't appear yet in the list, please register it now:</h2>
         <label for="new_brand_name">NEW Brand name:</label>
         <input autocomplete="off" type="text" id="new_brand_name" name="new_brand_name"
@@ -73,6 +82,7 @@ App name
         <label for="brand_website">NEW Brand website:</label>
         <input autocomplete="off" type="text" id="brand_website" name="brand_website"
             value="{{ (presaved_edit[0].brand_website if presaved_edit and presaved_edit|length > 0 else '') or '' }}"><br><br>
+        {% endif %}
 
         <label for="product_ingredients">Ingredients list:</label>
         <input autocomplete="off" type="text" id="product_ingredients" name="product_ingredients"

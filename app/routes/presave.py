@@ -27,7 +27,8 @@ def get_brand_id(db, brand_name):
     SELECT id FROM brands
     WHERE name = %s
     """
-    return db.execute(query, (brand_name,)).fetchone()["id"]
+    result = db.execute(query, (brand_name,)).fetchone()
+    return result["id"] if result else None
 
 
 def get_products(db):
@@ -75,6 +76,7 @@ def presave():
     presaved = get_presaved(db, author_id)
     brands = get_brands(db)
     products = get_products(db)
+    old_new_brand = "both"
 
     if request.method == "POST":
 
@@ -85,8 +87,14 @@ def presave():
 
         product_name = (request.form.get("product_name") or "").strip()
         product_url = opt("product_url")
-        brand_name = opt("old_brand_name") or opt("new_brand_name")
-        brand_id = get_brand_id(db, brand_name)
+        old_new_brand = opt("old_new_brand")
+        if old_new_brand == "old":
+            brand_name = opt("old_brand_name")
+        elif old_new_brand == "new":
+            brand_name = opt("new_brand_name")
+        else:
+            brand_name = opt("new_brand_name") or opt("old_brand_name")
+        brand_id = get_brand_id(db, brand_name) if brand_name else None
         brand_website = opt("brand_website")
         product_ingredients = opt("product_ingredients")
         product_energy = opt("product_energy")
@@ -102,7 +110,11 @@ def presave():
         if not product_name:
             flash("Product name is required.")
             return render_template(
-                "main/presave.html", products=products, brands=brands, presaved=presaved
+                "main/presave.html",
+                products=products,
+                brands=brands,
+                presaved=presaved,
+                old_new_brand=old_new_brand,
             )
 
         # Check if product with same name already presaved and update
@@ -182,7 +194,11 @@ def presave():
         return redirect(url_for("presave.presave"))
 
     return render_template(
-        "main/presave.html", products=products, brands=brands, presaved=presaved
+        "main/presave.html",
+        products=products,
+        brands=brands,
+        presaved=presaved,
+        old_new_brand=old_new_brand,
     )
 
 

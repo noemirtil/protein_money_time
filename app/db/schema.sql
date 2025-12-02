@@ -27,6 +27,7 @@ CREATE TABLE "brands" (
     "id" SERIAL PRIMARY KEY,
     "name" VARCHAR(64) NOT NULL UNIQUE,
     "website" VARCHAR(2048) NOT NULL UNIQUE,
+    "author_id" INT NOT NULL REFERENCES "users", -- user who inserted the data
     "inactive" BOOLEAN NOT NULL DEFAULT 'false'
 );
 
@@ -221,7 +222,7 @@ BEFORE INSERT OR UPDATE ON "presaved_products"
 FOR EACH ROW
 EXECUTE FUNCTION mark_presaved_as_completed();
 
-
+-- Create a function to insert a brand
 CREATE OR REPLACE FUNCTION insert_brand()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -229,19 +230,19 @@ BEGIN
     IF NOT EXISTS (
         SELECT 1 FROM brands WHERE name = NEW.brand_name
     ) THEN
-        INSERT INTO brands (name, website)
-        VALUES (NEW.brand_name, NEW.brand_website);
+        INSERT INTO brands ("name", website, author_id)
+        VALUES (NEW.brand_name, NEW.brand_website, NEW.author_id);
     END IF;
 
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- Create a trigger to call insert_brand() if presaved_products holds both brand_name and brand_website
 CREATE TRIGGER insert_presaved_brands
 AFTER INSERT OR UPDATE ON presaved_products
 FOR EACH ROW
-WHEN (NEW.brand_name IS NOT NULL AND NEW.brand_website IS NOT NULL)
+WHEN (NEW.brand_name IS NOT NULL AND NEW.brand_website IS NOT NULL AND NEW.brand_id IS NULL)
 EXECUTE FUNCTION insert_brand();
 
 

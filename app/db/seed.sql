@@ -12,8 +12,7 @@ DELETE FROM "presaved_prices" CASCADE;
 INSERT INTO "users" ("username", "email", "password") VALUES
 ('Noemi', 'noemi@gmail.com', 'password'),
 ('Rossana', 'rossana@gmail.com', 'password'),
-('Maria', 'maria@gmail.com', 'password'),
-('Juan', 'juan@gmail.com', 'password');
+('O-F-F', 'openfoodfacts@gmail.com', 'password');
 
 
 -- Calling a .csv file from a python script to pgsql is quite complex and
@@ -31,7 +30,28 @@ INSERT INTO "users" ("username", "email", "password") VALUES
 -- specified, data is transmitted via the connection between the client and
 -- the server.
 
-\COPY "brands"("name", "website") FROM 'brands.csv' delimiter ';' csv header;
+
+-- Seeding the "brands" table:
+-- Create a temporary table to hold the CSV data
+CREATE TEMPORARY TABLE "tmp_brands" (
+    "name" VARCHAR(64),
+    "website" VARCHAR(2048)
+);
+\COPY "tmp_brands"("name", "website") FROM 'brands.csv' delimiter ';' csv header;
+DO $$
+DECLARE
+    row tmp_brands%ROWTYPE;
+BEGIN
+    FOR row IN SELECT * FROM "tmp_brands"
+    LOOP
+        INSERT INTO "brands"("name", "website", "author_id")
+        VALUES (row.name, row.website,(SELECT "id" FROM "users" WHERE "username" = 'O-F-F'));
+-- author_id always set to O-F-F with this csv file
+    END LOOP;
+END $$;
+DROP TABLE "tmp_brands";
+
+
 -- Seeding the "products" table:
 -- Create a temporary table to hold the CSV data
 CREATE TEMPORARY TABLE "tmp_products" (
@@ -63,9 +83,9 @@ BEGIN
         VALUES (row.off_code, row.url, row.name,
             (SELECT "id" FROM "brands" WHERE "name" = row.brand_name),
             row.ingredients_text, row.energy, row.fat, row.sat_fat, row.carbs, row.sugars, row.fiber, row.protein, row.sodium, row.c_vitamin, row.nutr_score_fr,
-            (SELECT "id" FROM "users" WHERE "username" = 'Noemi')
+            (SELECT "id" FROM "users" WHERE "username" = 'O-F-F')
             );
--- author_id always set to Noemi with this seed file
+-- author_id always set to O-F-F with this csv file
     END LOOP;
 END $$;
 DROP TABLE "tmp_products";
@@ -125,6 +145,7 @@ BEGIN
             1,
             (SELECT "id" FROM "currencies" WHERE "currency_code" = 'USD'),
             (SELECT "id" FROM "users" WHERE "username" = 'Noemi'),
+-- author_id always set to Noemi with this seed file
             'Random testing value');
     END LOOP;
 END $$;
