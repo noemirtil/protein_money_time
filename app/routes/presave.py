@@ -1,13 +1,14 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 from app.db.connection import get_db
+from datetime import datetime
 
 presave_bp = Blueprint("presave", __name__)
 
 
-def get_presaved(db, author_id):
+def get_presaved(db, author_id) -> list[dict[str, datetime]]:
     query = """
-    SELECT product_name, creation_date FROM presaved_products
+    SELECT id, product_name, creation_date FROM presaved_products
     WHERE author_id = %s AND completed = False
     ORDER BY presaved_products.creation_date DESC
     """

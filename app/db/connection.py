@@ -16,7 +16,6 @@ def get_database_url():
 
     user = os.getenv("DB_USER")
     password = os.getenv("DB_PASSWORD")
-    host = os.getenv("DB_HOST")
     database = os.getenv("DB_NAME")
     instance = os.getenv("CLOUD_SQL_INSTANCE")
 
