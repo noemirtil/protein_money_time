@@ -310,9 +310,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
-<<<<<<< HEAD
-.azure
-=======
 
 
 # Visual Studio / Visual Studio Code
@@ -355,4 +352,3 @@ deployment.*.json
 # Azure Functions/WebJobs (General)
 # Local host config for Functions/WebJobs runtime
 host.json
->>>>>>> dev
