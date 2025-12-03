@@ -186,9 +186,6 @@ CREATE TRIGGER complete_product_trigger
     EXECUTE FUNCTION complete_and_insert_product();
 
 
-
-
-
 -- Create a function to insert a brand
 CREATE OR REPLACE FUNCTION insert_brand()
 RETURNS TRIGGER AS $$

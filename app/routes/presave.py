@@ -16,7 +16,7 @@ def get_presaved(db, author_id):
 
 def completed_presaved(db, author_id):
     query = """
-    SELECT COUNT(*) FROM PRESAVED_PRODUCTS
+    SELECT COUNT(*) FROM presaved_products
     WHERE author_id = %s AND completed = true
     """
     return db.execute(query, (author_id,)).fetchone()
