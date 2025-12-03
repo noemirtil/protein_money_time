@@ -14,12 +14,31 @@ def get_presaved(db, author_id):
     return db.execute(query, (author_id,)).fetchall()
 
 
-def completed_presaved(db, author_id):
+def set_contributions(db, author_id):
     query = """
+    UPDATE users SET contributions = (
     SELECT COUNT(*) FROM presaved_products
     WHERE author_id = %s AND completed = true
+    ) WHERE id = %s
     """
-    return db.execute(query, (author_id,)).fetchone()
+    return db.execute(
+        query,
+        (
+            author_id,
+            author_id,
+        ),
+    )
+
+
+def get_contributions(db, user_id):
+    set_contributions(db, user_id)
+    db.commit()
+
+    query = """
+    SELECT contributions FROM users
+    WHERE id = %s
+    """
+    return db.execute(query, (user_id,)).fetchone()
 
 
 def get_brands(db):
@@ -82,7 +101,16 @@ def presave():
     db = get_db()
     author_id = current_user.id
     presaved = get_presaved(db, author_id)
-    completed = completed_presaved(db, author_id)
+    contributions = get_contributions(db, author_id)
+    print(contributions)
+    print(contributions)
+    print(contributions)
+    print(contributions)
+    print(contributions)
+    print(contributions)
+    print(contributions)
+    print(contributions)
+    print(contributions)
     brands = get_brands(db)
     products = get_products(db)
     old_new_brand = "both"
@@ -123,7 +151,7 @@ def presave():
                 products=products,
                 brands=brands,
                 presaved=presaved,
-                completed=completed,
+                contributions=contributions,
                 old_new_brand=old_new_brand,
             )
 
@@ -208,7 +236,7 @@ def presave():
         products=products,
         brands=brands,
         presaved=presaved,
-        completed=completed,
+        contributions=contributions,
         old_new_brand=old_new_brand,
     )
 
