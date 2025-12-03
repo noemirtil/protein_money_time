@@ -12,6 +12,8 @@ This recipe recommendation app allows users to:
 - Earn medals through contributions
 - Manage user authentication and profiles
 
+![../app/static/img/about.png](../app/static/img/about.png)
+
 ## 🛠️ Technologies
 
 - **Backend:** Python 3.x, Flask
