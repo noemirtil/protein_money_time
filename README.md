@@ -1,6 +1,8 @@
 # Protein 💪 Money 💰 Time ⏱️
 
-A Flask web application that helps users find and upload products based on their nutritional value, price, and cooking time. Built with Python, Flask, PostgreSQL, and deployed on Google's Cloud SQL at [https://test-270421769412.europe-southwest1.run.app/](https://test-270421769412.europe-southwest1.run.app/)
+####[`https://github.com/noemirtil/protein_money_time/tree/dev`](https://github.com/noemirtil/protein_money_time/tree/dev)
+
+A Flask web application that helps users find and upload products based on their nutritional value, price, and cooking time. Built with Python, Flask, PostgreSQL, and deployed on Google's Cloud SQL at [`https://test-270421769412.europe-southwest1.run.app/`](https://test-270421769412.europe-southwest1.run.app/)
 
 ## 🎯 Project Overview
 
@@ -12,7 +14,7 @@ This recipe recommendation app allows users to:
 - Earn medals through contributions
 - Manage user authentication and profiles
 
-![../app/static/img/about.png](../app/static/img/about.png)
+![https://github.com/noemirtil/protein_money_time/blob/dev/app/static/img/about.png](https://github.com/noemirtil/protein_money_time/blob/dev/app/static/img/about.png)
 
 ## 🛠️ Technologies
 
@@ -25,7 +27,7 @@ This recipe recommendation app allows users to:
 ## 📋 Prerequisites
 
 ### - To only run it as a client:
-- Just visit [https://test-270421769412.europe-southwest1.run.app/](https://test-270421769412.europe-southwest1.run.app/)
+- Just visit [`https://test-270421769412.europe-southwest1.run.app/`](https://test-270421769412.europe-southwest1.run.app/)
 
 ### - To install it on your own computer:
 - Python 3.8 or higher
