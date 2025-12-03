@@ -1,188 +1,223 @@
 # Protein 💪 Money 💰 Time ⏱️
+[`https://github.com/noemirtil/protein_money_time/tree/dev`](https://github.com/noemirtil/protein_money_time/tree/dev)
 
-A Flask web application that helps users find and upload products based on their nutritional value, price, and cooking time. Built with Python, Flask, and PostgreSQL.
+
+A Flask web application that helps users find and upload products based on their nutritional value, price, and cooking time. Built with Python, Flask, PostgreSQL, and deployed on Google's Cloud SQL at [`https://test-270421769412.europe-southwest1.run.app/`](https://test-270421769412.europe-southwest1.run.app/)
 
 ## 🎯 Project Overview
 
 This recipe recommendation app allows users to:
 
-- Find ready-to-eat products based on health value and cooking time
-- Compare products by price and nutritional information
-- Contribute product data to the community database
+- Find ready-to-eat products based on price per kg, nutritional values and cooking time
+- Compare with home-made recipes and save your prefered meals
+- Contribute recipes and product data to the community database
+- Earn medals through contributions
 - Manage user authentication and profiles
+
+![https://github.com/noemirtil/protein_money_time/blob/dev/app/static/img/about.png](https://github.com/noemirtil/protein_money_time/blob/dev/app/static/img/about.png)
 
 ## 🛠️ Technologies
 
 - **Backend:** Python 3.x, Flask
-- **Database:** PostgreSQL (Neon Cloud)
+- **Database:** PostgreSQL (Google's Cloud SQL)
 - **Forms:** Flask-WTF
 - **Authentication:** Flask-Login
-- **Database Driver:** psycopg2
+- **Database Driver:** psycopg3
 
 ## 📋 Prerequisites
 
+### - To only run it as a client:
+- Just visit [`https://test-270421769412.europe-southwest1.run.app/`](https://test-270421769412.europe-southwest1.run.app/)
+
+### - To install it on your own computer:
 - Python 3.8 or higher
+- Psql 18.1 or higher
 - Git
-- A Neon account (for cloud PostgreSQL database)
 
 ## 🚀 Setup Instructions
 
 ### 1. Clone the Repository
 
-    ```bash
-    git clone https://github.com/noemirtil/protein_money_time.git
-    cd protein_money_time
-    ```
+```
+$ git clone https://github.com/noemirtil/protein_money_time.git
+$ cd protein_money_time
+```
 
 ### 2. Create Virtual Environment
 
-    ```bash
-    # Create venv
-    python -m venv venv
+```
+# Create .venv
+$ python -m venv .venv
 
-    # Activate (Windows)
-    .\venv\Scripts\Activate.ps1
+# Activate .venv (Windows)
+$ .\venv\Scripts\Activate.ps1
 
-    # Activate (Mac/Linux)
-    source venv/bin/activate
-    ```
+# Activate .venv (Mac/Linux)
+$ source .venv/bin/activate
+``` 
+    
 
 ### 3. Install Dependencies
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+```
+$ pip install -r requirements.txt
+```
 
-If `requirements.txt` doesn't exist yet, install manually:
+### 4. Local database setup
 
-    ```bash
-    pip install flask flask-wtf flask-login python-dotenv psycopg
-    ```
+More info on this process: [https://www.postgresql.org/docs/current/app-createdb.html](https://www.postgresql.org/docs/current/app-createdb.html)
 
-### 4. Configure Environment Variables
+```
+$ createdb your_db_name
+```
 
-Create a `.env` file in the root directory:
+The database schema `protein_money_time/app/db/app/db/schema.sql` must then be executed against your PostgreSQL instance manually before running the application. Run psql from your `protein_money_time/app/db/` folder and then enter:
 
-    ```bash
-    SECRET_KEY=your-secret-key-here
-    # Example for a secure cloud connection (recommended)
-    # DATABASE_URL=postgresql://user:password@host:port/database?sslmode=require
-    # Example for a local/unsecured connection
-    DATABASE_URL=postgresql://user:password@localhost:5432/database_name
-    ```
+```
+your_db_name=# \i schema.sql
+# And then seed the tables:
+your_db_name=# \i seed.sql
+```
 
-Database Setup: The database schema (app/db/schema.sql) must be executed against your PostgreSQL instance manually before running the application.
+To allow the app to access your database, create a personal `.env` file in the root directory:
 
-Database Connection String:
+```
+$ nano .env
+```
 
-Obtain the connection string (URL) for your PostgreSQL database from your provider or local setup.
+With nano editor, edit .env with the following model and save the file:
 
-Ensure the URL is correctly formatted for use with psycopg.
+```
+# You can use default 'postgres' username
+DB_USER=your_psql_username
+# You can leave empty if you don't need a password
+DB_PASSWORD=your_psql_password
+DB_NAME=your_db_name
+# For local dev, leave CLOUD_SQL_INSTANCE empty as following:
+CLOUD_SQL_INSTANCE=
+```
 
-Paste it into your .env file as the DATABASE_URL.
 
 ### 5. Run the Application
 
-    ```bash
-    python app.py
-    ```
+```
+$ python app.py
+```
 
-The app will be available at: `http://localhost:5000`
+The app will be available in your browser at: `http://127.0.0.1:8000`
 
 ## 🗂️ Project Structure
 
-    ```
-    protein_money_time/
-    ├── app/
-    │   ├── __init__.py           # App factory
-    │   ├── extensions.py         # Flask extensions (CSRF, Login Manager)
-    │   ├── db/
-    │   │   ├── __init__.py
-    │   │   ├── connection.py     # Database connection helpers
-    │   │   └── schema.sql        # Database schema
-    │   ├── forms/
-    │   │   ├── __init__.py
-    │   │   └── auth_forms.py     # Authentication forms
-    │   ├── routes/
-    │   │   ├── __init__.py
-    │   │   ├── auth.py           # Auth routes (login, register, logout)
-    │   │   └── main.py           # Main application routes
-    │   ├── templates/
-    │   │   ├── base.html
-    │   │   └── auth/
-    │   │       ├── login.html
-    │   │       └── register.html
-    │   └── static/
-    │       ├── css/
-    │       └── js/
-    ├── config.py                 # Configuration settings
-    ├── app.py                    # Application entry point
-    ├── .env                      # Environment variables (not in git)
-    ├── .gitignore
-    ├── requirements.txt
-    └── README.md
-    ```
+```
+protein_money_time/
+├── .venv/ 						# Virtual environment
+├── app/
+│   ├── __init__.py           # App factory
+│   ├── extensions.py         # Flask extensions (CSRF, Login Manager)
+│   ├── db/
+│   │   ├── __init__.py
+│   │   ├── connection.py     # Database connection helpers
+│   │   ├── *.csv				# Some seeding files called by seed.sql
+│   │   ├── seed.sql			# Database first seed
+│   │   ├── queries.sql			# Some queries we might use
+│   │   └── schema.sql        # Database architecture
+│   ├── forms/
+│   │   ├── __init__.py
+│   │   └── auth_forms.py     # Authentication forms
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── user.py     		# The User class
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── auth.py           # Auth routes (login, register, logout)
+│   │   ├── main.py           # Main application routes
+│   │   └── presave.py        # Route to feed the db with new products, brands, prices, store
+│   ├── templates/
+│   │   ├── __init__.py
+│   │   ├── extensions.py		# CSRFProtect and LoginManager
+│   │   ├── base.html
+│   │   ├── auth/
+│   │   │   ├── login.html
+│   │   │   └── register.html
+│   │   └── main/
+│   │       ├── index.html
+│   │       └── presave.html
+│   └── static/
+│       ├── css/
+│       └── js/
+├── .env							# Personal db connection variables (not in github)
+├── config.py                 # Configuration settings
+├── app.py                    # Application entry point
+├── LICENSE						# GNU affero general public license
+├── pyproject.toml				# Instructions for pip
+├── .gitignore					# Tell git what to ignore
+├── requirements.txt			# What you'll need to pip install
+├── wsgi.py						# For production mode only
+├── Procfile						# For production mode only
+└── README.md						# This file
+
+```
 
 ## 🧪 Testing Database Connection
 
 Visit these test routes to verify your setup:
 
-- `http://localhost:5000/` - Main page
-- `http://localhost:5000/auth/test` - Auth blueprint test
-- `http://localhost:5000/auth/test-connection` - Database connection info
-- `http://localhost:5000/auth/test-db` - Users table test
+- [http://127.0.0.1:8000/](http://127.0.0.1:8000/) - Main page
+- [http://127.0.0.1:8000/auth/test](http://127.0.0.1:8000/auth/test) - Auth blueprint test
+- [http://127.0.0.1:8000/presave](http://127.0.0.1:8000/presave) - Database feeding page with new products, brands, prices, store
 
-## 📝 Available Flask Commands
-
-    ```bash
-    # Run development server
-    python run.py
-    ```
 
 ## 🔑 Database Schema
 
-    - Currently implemented tables:
+### Currently 10 implemented tables:
 
-    - users (User authentication and contributions)
+- users (User authentication and contributions)
 
-    - brands (Product manufacturers)
+- brands (Product manufacturers)
 
-    - products (Nutritional information per 100g)
+- products (Nutritional information per 100g)
 
-    - currencies (ISO 4217 codes)
+- currencies (ISO 4217 codes)
 
-    - countries (Country names)
+- countries (Country names)
 
-    - junction_currency_country (Many-to-many link)
+- junction_currency_country (Many-to-many link)
 
-    - stores (Locations where prices were observed)
+- stores (Locations where prices were observed)
 
-    - prices (Price, weight, and date data)
+- prices (Price, weight, and date data)
+
+- presaved_products (user contributions before INSERT on completion, triggered by plpgsql language)
+
+- presaved_prices (user contributions before INSERT on completion, triggered by plpgsql language)
+    
+### Take a look at `schema.sql` 
+
 
 ## 🌿 Git Workflow
 
-    ```bash
-    # Main development branch
-    git checkout dev
+```
+# Main development branch
+$ git checkout dev
 
-    # Create feature branch
-    git checkout -b feature/your-feature-name
+# Create feature branch
+$ git switch -c feature/your-feature-name
 
-    # After completing work
-    git add .
-    git commit -m "feat: description of changes"
-    git push origin feature/your-feature-name
+# Frequent atomic commits
+$ git add .
+$ git commit -m "feat: description of changes"
+$ git push origin feature/your-feature-name
 
-    # Merge to dev
-    git checkout dev
-    git merge feature/your-feature-name
-    git push origin dev
-    ```
+# Merge to dev
+$ git switch dev
+$ git merge feature/your-feature-name
+$ git push origin dev
+```
 
 ## 👥 Team
 
-- **Rossana** - Full Stack Developer (Auth, User Management, User Templates)
-- **Noémie** - Database Architect (Schema Design)
+- [**Rossana**](https://github.com/omgchyah) - Full Stack Developer (Auth, User Management, User Templates)
+- [**Noémie**](https://github.com/noemirtil) - Database Architect (Schema Design, DevOps, Seeding)
 
 ## 📚 Learning Resources
 
@@ -194,13 +229,11 @@ Visit these test routes to verify your setup:
 
 ### Database connection issues
 
-- Verify your .env file has the correct DATABASE_URL format.
+- Verify your .env file follows instructions.
 
 - Check that your PostgreSQL database server is running and accessible.
 
-- If connecting to a cloud database, ensure you have the correct host, port, credentials, and sslmode=require if necessary.
-
-- Ensure you have manually run schema.sql against your database.
+- Ensure you have manually run schema.sql and seed.sql inside psql against your database.
 
 ### Import errors
 
@@ -210,8 +243,8 @@ Visit these test routes to verify your setup:
 
 ## 📄 License
 
-This project is for educational purposes as part of a Full Stack Development bootcamp.
+This project, begun for educational purposes as part of a Full Stack Development bootcamp, is now licensed under GNU affero general public license.
 
 Status: 🚧 In Development
 
-Last Updated: November 2025
+Last Updated: December 2025

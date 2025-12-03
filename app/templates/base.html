@@ -20,6 +20,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../static/style/style.css">
 
     <!-- Custom configuration -->
     <script>
@@ -39,29 +40,6 @@
             }
         }
     </script>
-    <!-- <style type="text/tailwindcss">
-        @layer base {
-                a {
-                  @apply underline decoration-brand-orange;
-                }
-              }
-                .flex {
-                    display: flex;
-                }
-                .space-between {
-                    display: flex;
-                    justify-content: space-between;
-                }
-                .width-50 {
-                    width: 50%;
-                }
-                .width-100 {
-                    width: 100%;
-                }
-                .green {
-                    color: #4ECDC4;
-                }
-    </style> -->
 </head>
 
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -85,35 +63,28 @@
                     </a>
                 </div>
 
-                <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" type="button"
-                        class="text-gray-700 hover:text-brand-orange focus:outline-none focus:text-brand-orange">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 6h16M4 12h16M4 18h16" />
-                            <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-4">
                     {% if current_user.is_authenticated %}
-                    <p>{{ current_user.username }}'s account</p>
+                    <p class="text-gray-700 px-3 py-2 rounded-md text-sm lg:text-base"><a
+                            href="{{ url_for('presave.presave') }}">{{ current_user.username }}'s
+                            account</a></p>
                     <a href="{{ url_for('main.index') }}"
                         class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
                         Home
                     </a>
                     <form method="POST" action="{{ url_for('auth.logout') }}" class="inline"
-                        onsubmit="return confirm('Want to sign out?');">
+                        onsubmit="return confirm('Do you want to log out?');">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                         <button type="submit"
                             class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md transition text-sm lg:text-base">
                             Sign Out
                         </button>
                     </form>
+                    <button type="button" id="open-about-modal-desktop"
+                        class="text-gray-700 hover:text-brand-orange px-3 py-2 rounded-md transition text-sm lg:text-base">
+                        About
+                    </button>
                     {% else %}
                     <a href="{{ url_for('main.index') }}"
                         class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
@@ -127,88 +98,73 @@
                         class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
                         Sign In
                     </a>
+                    <button type="button" id="open-about-modal-desktop"
+                        class="text-gray-700 hover:text-brand-orange px-3 py-2 rounded-md transition text-sm lg:text-base">
+                        About
+                    </button>
                     {% endif %}
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" type="button"
+                        class="text-gray-700 hover:text-brand-orange focus:outline-none focus:text-brand-orange">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                            <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden">
-                <button id="mobile-menu-button" type="button"
-                    class="text-gray-700 hover:text-brand-orange focus:outline-none focus:text-brand-orange">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                        <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
 
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center space-x-4">
-                {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.index') }}"
-                    class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                    Inicio
-                </a>
-                <form method="POST" action="{{ url_for('auth.logout') }}" class="inline"
-                    onsubmit="return confirm('¿Quieres cerrar sesión?');">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                    <button type="submit"
-                        class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md transition text-sm lg:text-base">
-                        Cerrar sesión
+            <!-- Mobile Menu (Hidden by default) -->
+            <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
+                <div class="px-2 pt-2 pb-3 space-y-1">
+                    {% if current_user.is_authenticated %}
+                    <p>
+                        <a href="{{ url_for('presave.presave') }}">{{ current_user.username }}'s
+                            account</a>
+                    </p>
+                    <a href="{{ url_for('main.index') }}"
+                        class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                        Home
+                    </a>
+                    <form method="POST" action="{{ url_for('auth.logout') }}"
+                        onsubmit="return confirm('Do you want to log out?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <button type="submit"
+                            class="w-full text-left text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                            Sign out
+                        </button>
+                    </form>
+                    <button type="button" id="open-about-modal-mobile"
+                        class="text-gray-700 hover:text-brand-orange px-3 py-2 rounded-md transition text-sm lg:text-base">
+                        About
                     </button>
-                </form>
-                {% else %}
-                <a href="{{ url_for('main.index') }}"
-                    class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                    Inicio
-                </a>
-                <a href="{{ url_for('auth.register') }}"
-                    class="text-gray-700 hover:text-brand-orange transition px-3 py-2 rounded-md text-sm lg:text-base">
-                    Registrarse
-                </a>
-                <a href="{{ url_for('auth.login') }}"
-                    class="bg-brand-orange hover:bg-orange-600 text-white px-4 py-2 rounded-md transition font-medium text-sm lg:text-base">
-                    Iniciar sesión
-                </a>
-                {% endif %}
-            </div>
-        </div>
-        </div>
-
-        <!-- Mobile Menu (Hidden by default) -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-gray-200">
-            <div class="px-2 pt-2 pb-3 space-y-1">
-                {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.index') }}"
-                    class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
-                    Inicio
-                </a>
-                <form method="POST" action="{{ url_for('auth.logout') }}"
-                    onsubmit="return confirm('¿Quieres cerrar sesión?');">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-                    <button type="submit"
-                        class="w-full text-left text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
-                        Cerrar sesión
+                    {% else %}
+                    <a href="{{ url_for('main.index') }}"
+                        class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                        Home
+                    </a>
+                    <a href="{{ url_for('auth.register') }}"
+                        class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
+                        Sign up
+                    </a>
+                    <a href="{{ url_for('auth.login') }}"
+                        class="block bg-brand-orange hover:bg-orange-600 text-white px-3 py-2 rounded-md text-base font-medium">
+                        Sign in
+                    </a>
+                    <button type="button" id="open-about-modal-mobile"
+                        class="text-gray-700 hover:text-brand-orange px-3 py-2 rounded-md transition text-sm lg:text-base">
+                        About
                     </button>
-                </form>
-                {% else %}
-                <a href="{{ url_for('main.index') }}"
-                    class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
-                    Inicio
-                </a>
-                <a href="{{ url_for('auth.register') }}"
-                    class="block text-gray-700 hover:bg-gray-100 hover:text-brand-orange px-3 py-2 rounded-md text-base">
-                    Registrarse
-                </a>
-                <a href="{{ url_for('auth.login') }}"
-                    class="block bg-brand-orange hover:bg-orange-600 text-white px-3 py-2 rounded-md text-base font-medium">
-                    Iniciar sesión
-                </a>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
-        </div>
+    </nav>
     </nav>
 
     <!-- Flash Messages -->
@@ -237,6 +193,81 @@
     {% endif %}
     {% endwith %}
 
+    <div id="about-modal"
+        class="hidden fixed inset-0 z-50 overflow-auto bg-gray-900 bg-opacity-50 flex items-center justify-center p-4">
+
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 relative transform transition-all">
+
+            <div
+                class="flex justify-between items-center border-b pb-3 mb-4  px-6 py-4 bg-white rounded-t-lg sticky top-0 z-10">
+                <h3 class="text-xl font-bold text-gray-800">About Our App</h3>
+                <button id="close-modal-button" type="button" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="px-6 py-4 overflow-y-auto max-h-[60vh] sm:max-h-[70vh]">
+                <div class="text-gray-700 space-y-4">
+
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome to Protein Money Time! 🍗💰⏰</h2>
+
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-1.5">What is PMT?</h3>
+                        <p class="text-sm">PMT helps you find the <strong>best value nutrition</strong> at the
+                            supermarket. We analyze products to show you which ones give you the most protein and
+                            vitamins for your money.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-1.5">How does it work?</h3>
+                        <p class="text-sm mb-2">Our smart scoring system considers:</p>
+                        <ul class="list-disc list-inside ml-2 space-y-1 text-sm">
+                            <li><strong>Protein Score:</strong> High protein + Low fat + Low price = Better value</li>
+                            <li><strong>Vitamin Score:</strong> High vitamin C + Low sodium + Low price = Healthier
+                                choice</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-lg text-gray-800 mb-1.5">Where does the data come from?</h3>
+                        <p class="text-sm">All nutritional information comes from <a
+                                href="https://world.openfoodfacts.org" target="_blank"
+                                class="text-brand-orange hover:underline">Open Food Facts</a>, a free, open database of
+                            food products from around the world. Prices are collected and updated by our community of
+                            users.</p>
+                    </div>
+
+                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                        <h3 class="font-semibold text-base text-brand-orange mb-2">💡 Quick Start Guide</h3>
+                        <ol class="list-decimal list-inside space-y-1.5 text-sm">
+                            <li>Browse all products or use the search bar to find specific items</li>
+                            <li>Click the 🍗 or 💊 buttons to sort by protein or vitamin value</li>
+                            <li>View detailed nutrition labels for each product</li>
+                            <li><a href="{{ url_for('auth.register') }}"><span
+                                        class="font-semibold hover:text-brand-orange">Sign up</span></a> to unlock all
+                                features and contribute price data!</li>
+                        </ol>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t bg-gray-50 rounded-b-lg sticky bottom-0">
+                <div class="flex justify-center">
+                    <button id="modal-close-footer" type="button"
+                        class="px-4 py-2 bg-brand-orange hover:bg-orange-600 text-white rounded-md transition font-medium">
+                        Got it!
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- Main Content -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 w-full">
         {% block content %}
@@ -256,33 +287,7 @@
     </button>
 
     <!-- Mobile Menu Toggle Script -->
-    <script>
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuIcon = document.getElementById('menu-icon');
-        const closeIcon = document.getElementById('close-icon');
-        const scrollUpButton = document.getElementById('scroll-up-button');
-
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            menuIcon.classList.toggle('hidden');
-            closeIcon.classList.toggle('hidden');
-        });
-        window.addEventListener('scroll', () => {
-            let scrollPosition = window.scrollY;
-
-            if (scrollPosition > 300) {
-                scrollUpButton.classList.add('opacity-100');
-                scrollUpButton.classList.remove('pointer-events-none');
-            } else {
-                scrollUpButton.classList.remove('opacity-100');
-                scrollUpButton.classList.add('pointer-events-none');
-            }
-        });
-        scrollUpButton.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
 </body>
 
 </html>
