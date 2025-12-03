@@ -7,7 +7,7 @@ presave_bp = Blueprint("presave", __name__)
 
 def get_presaved(db, author_id):
     query = """
-    SELECT * FROM presaved_products
+    SELECT product_name, creation_date FROM presaved_products
     WHERE author_id = %s AND completed = False
     ORDER BY presaved_products.creation_date DESC
     """
@@ -39,6 +39,13 @@ def get_contributions(db, user_id):
     WHERE id = %s
     """
     return db.execute(query, (user_id,)).fetchone()
+
+
+def is_completed(db, product_name):
+    return db.execute(
+        "SELECT completed FROM presaved_products WHERE product_name = %s",
+        (product_name,),
+    ).fetchone()["completed"]
 
 
 def get_brands(db):
@@ -102,15 +109,6 @@ def presave():
     author_id = current_user.id
     presaved = get_presaved(db, author_id)
     contributions = get_contributions(db, author_id)
-    print(contributions)
-    print(contributions)
-    print(contributions)
-    print(contributions)
-    print(contributions)
-    print(contributions)
-    print(contributions)
-    print(contributions)
-    print(contributions)
     brands = get_brands(db)
     products = get_products(db)
     old_new_brand = "both"
@@ -190,9 +188,14 @@ def presave():
                     ),
                 )
                 db.commit()
-                flash(
-                    "Successfully UPDATED pre-saved product data, please complete missing data ASAP"
-                )
+                if is_completed(db, product_name) == False:
+                    flash(
+                        "Successfully updated pre-saved product data, please complete missing data ASAP"
+                    )
+                else:
+                    flash(
+                        "Successfully updated COMPLETE product data, you earned a NEW MEDAL!"
+                    )
                 return redirect(url_for("presave.presave"))
 
         # Insert new presaved product
@@ -226,9 +229,16 @@ def presave():
             ),
         )
         db.commit()
-        flash(
-            "Successfully INSERTED pre-saved product data, please complete missing data ASAP"
-        )
+
+        if is_completed(db, product_name) == False:
+            flash(
+                "Successfully inserted pre-saved product data, please complete missing data ASAP"
+            )
+        else:
+            flash(
+                "Successfully inserted COMPLETE product data, you earned a NEW MEDAL!"
+            )
+
         return redirect(url_for("presave.presave"))
 
     return render_template(
@@ -267,10 +277,12 @@ def edit():
     products = get_products(db)
     author_id = current_user.id
     presaved = get_presaved(db, author_id)
+    contributions = get_contributions(db, author_id)
     return render_template(
         "main/presave.html",
         presaved_edit=presaved_edit,
         products=products,
         brands=brands,
         presaved=presaved,
+        contributions=contributions,
     )

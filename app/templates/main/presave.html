@@ -204,21 +204,16 @@ App name
             <div class="space-between">
                 <div class="width-100">Brand: <span class="font-bold"><a href='{{ product.website }}'>{{
                             product.brand_name }}</a></span></div>
-                <form action="{{ url_for('presave.edit') }}" method="post">
+                <!-- <form action="{{ url_for('presave.edit') }}" method="post">
                     <input name="edit" type="hidden" value="{{ product.id }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button class="icons" type="submit">✏️</button>
-                </form>
+                </form> -->
             </div>
             {% if product.price and product.currency_code %}
-            <div class="space-between">
-                <div>Latest Price: <a href='{{ product.store_name }}'><span class="font-semibold">{{
-                            product.currency_code }} {{ product.price_per_kg }}</span></a> ({{ product.price_date.year
-                    }}-{{ product.price_date.month }}-{{ product.price_date.day }})</div>
-                <form action="{{ url_for('presave.delete') }}" method="post">
-                    <input name="delete" type="hidden" value="{{ product.id }}">
-                    <button class="icons" type="submit">❌</button>
-                </form>
-            </div>
+            <div>Latest Price: <a href='{{ product.store_name }}'><span class="font-semibold">{{
+                        product.currency_code }} {{ product.price_per_kg }}</span></a> ({{ product.price_date.year
+                }}-{{ product.price_date.month }}-{{ product.price_date.day }})</div>
             {% endif %}
         </div>
     </div>
