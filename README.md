@@ -216,8 +216,8 @@ $ git push origin dev
 
 ## 👥 Team
 
-- **Rossana** - Full Stack Developer (Auth, User Management, User Templates)
-- **Noémie** - Database Architect (Schema Design, DevOps, Seeding)
+- [**Rossana**](https://github.com/omgchyah) - Full Stack Developer (Auth, User Management, User Templates)
+- [**Noémie**](https://github.com/noemirtil) - Database Architect (Schema Design, DevOps, Seeding)
 
 ## 📚 Learning Resources
 
