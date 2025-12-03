@@ -8,6 +8,7 @@ App name
 
 {% if current_user.is_authenticated %}
 <p>Hello, {{ current_user.username }}</p>
+<p>You have completed {{ completed["count"] }} products! {{ completed["count"] * '🏅' }}</p>
 <br>
 {% endif %}
 

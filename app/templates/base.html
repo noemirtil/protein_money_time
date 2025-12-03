@@ -157,6 +157,7 @@
                 </div>
         </div>
     </nav>
+    </nav>
 
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -246,23 +247,23 @@
 
     </div>
 
-            <!-- Main Content -->
-            <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 w-full">
-                {% block content %}
-                {% endblock content %}
-            </main>
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 w-full">
+        {% block content %}
+        {% endblock content %}
+    </main>
 
-            <!-- Footer -->
-            <footer class="bg-white border-t mt-auto py-4 sm:py-6">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600 text-xs sm:text-sm">
-                    <p>© 2025 Protein Money Time - Noémie&Rossana</p>
-                </div>
-            </footer>
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-auto py-4 sm:py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600 text-xs sm:text-sm">
+            <p>© 2025 Protein Money Time - Noémie&Rossana</p>
+        </div>
+    </footer>
 
-            <button id="scroll-up-button"
-                class="bg-white shadow-lg fixed w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center opacity-0 bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 rounded-full border-2 border-gray-300 pointer-events-none transition-opacity duration-300 hover:bg-gray-100 hover:scale-110 text-lg sm:text-xl">
-                ↑
-            </button>
+    <button id="scroll-up-button"
+        class="bg-white shadow-lg fixed w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center opacity-0 bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 rounded-full border-2 border-gray-300 pointer-events-none transition-opacity duration-300 hover:bg-gray-100 hover:scale-110 text-lg sm:text-xl">
+        ↑
+    </button>
 
             <!-- Mobile Menu Toggle Script -->
             <script src="{{ url_for('static', filename='js/base.js') }}"></script>
